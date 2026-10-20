@@ -50,7 +50,7 @@ nav button[aria-current="true"]{background:var(--active);color:var(--text);font-
 button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* canvas */
 .col{width:min(1100px,100% - 32px);margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
-.col.narrow{width:min(720px,100% - 32px)}
+.col.narrow{width:min(920px,100% - 32px)}
 #app{padding-top:8px}
 .greet{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding:40px 0 18px}
 .greet h1{font-size:32px;line-height:1.3;font-weight:500;letter-spacing:-.015em;margin:0;max-width:24em;text-wrap:balance}
@@ -144,7 +144,7 @@ input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .more{border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:8px}
 .more h4{margin:0;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}
 .more p{margin:0;font-size:14px;line-height:1.75;overflow-wrap:anywhere}
-.figimg{display:block;width:100%;max-width:420px;height:auto;margin:6px 0;border-radius:var(--radius-row)}
+.figimg{display:block;width:100%;max-width:100%;height:auto;margin:6px 0;border-radius:var(--radius-row);background:#fff;cursor:zoom-in}
 .askimg{display:block;width:100%;max-width:420px;height:auto;margin-top:12px;border-radius:8px}
 .ask{white-space:pre-wrap;font-size:14px;line-height:1.75;overflow-wrap:anywhere;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-row);padding:12px;animation:rise .2s ease-out}
 textarea#cpbox{width:100%;font-size:13px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-row);background:var(--raised);color:var(--text);resize:vertical}
@@ -154,7 +154,12 @@ textarea#cpbox{width:100%;font-size:13px;padding:10px;border:1px solid var(--bor
 .detail summary::before{content:"▸ ";color:var(--accent)}
 .detail[open] summary::before{content:"▾ "}
 .detail .wide{overflow-x:auto;padding:0 8px 10px;-webkit-overflow-scrolling:touch}
-.figwide{display:block;width:100%;min-width:640px;height:auto;border-radius:10px}
+.figwide{display:block;width:100%;min-width:640px;height:auto;border-radius:10px;cursor:zoom-in}
+.detail summary em{font-style:normal;color:var(--accent);margin-left:6px;font-size:12px}
+.lb{position:fixed;inset:0;background:rgba(15,17,16,.94);z-index:50;overflow:auto;-webkit-overflow-scrolling:touch;padding:60px 16px 28px}
+.lb img{display:block;margin:0 auto;width:max(1000px,min(1500px,100%));height:auto;background:#fff;border-radius:12px;max-width:none}
+.lb .x{position:fixed;top:12px;right:12px;min-height:40px;padding:0 18px;border-radius:999px;border:1px solid #fff;background:#fff;color:#111;font-weight:600;cursor:pointer;z-index:51}
+.lb .hint{position:fixed;top:20px;left:16px;color:#fff;font-size:13px;opacity:.85;z-index:51}
 .iact{display:flex;flex-direction:column;gap:6px;padding:10px 14px;font-size:13px}
 .iact a{color:var(--accent);text-decoration:none}.iact a:hover{text-decoration:underline}
 .shake{animation:shake .28s var(--ease)}
@@ -171,6 +176,7 @@ textarea#cpbox{width:100%;font-size:13px;padding:10px;border:1px solid var(--bor
 .empty{color:var(--muted);font-size:13px;border:1px dashed var(--control);border-radius:var(--radius-row);padding:12px 16px}
 h2.sec{margin:12px 0 0;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0;text-transform:none}
 @media (max-width:860px){
+  .figwide{min-width:800px}
   .s3{grid-column:span 6}.s6{grid-column:span 12}
   .brand span{display:none}
 }
@@ -434,10 +440,10 @@ var DX={"119": ["disc-brake", "abs-hydraulic"], "120": ["disc-brake", "abs-hydra
 var IACT={"119":1,"120":1,"121":1,"122":1,"123":1,"124":1,"125":1,"126":1,"127":1,"128":1,"129":1};
 function fig(id){
   var h='', k=DMAP[id];
-  if(k&&DG[k]) h+='<img class="figimg" alt="도식" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(DG[k])+'">';
+  if(k&&DG[k]) h+='<img class="figimg" data-zoom="1" alt="도식" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(DG[k])+'">';
   var xs=DX[id]||[];
   for(var j=0;j<xs.length;j++){ var f='diagrams/'+xs[j]+'.svg';
-    h+='<details class="detail"><summary>자세한 구조도 · '+esc(DXT[xs[j]])+'</summary><div class="wide"><img class="figwide" loading="lazy" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></details>'; }
+    h+='<details class="detail" open><summary>구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기</em></summary><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></details>'; }
   if(IACT[id]) h+='<div class="detail"><div class="iact"><b>인터랙티브 도식</b><a href="interactive/disc-brake-gap.html" target="_blank" rel="noopener">디스크 브레이크 · 유격 ▸</a><a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></div>';
   return h;
 }
@@ -734,6 +740,23 @@ document.addEventListener('keydown',function(e){
   }
   if(S.stage==='ask' && it[2]==='o'){ var k=e.key.toUpperCase(); if(k==='O'||k==='X') handleRes(k===it[4]?'ok':'no'); }
 });
+(function(){
+  function close(){ var o=document.getElementById('lb'); if(o){ o.remove(); document.body.style.overflow=''; } }
+  document.addEventListener('click',function(e){
+    var im=e.target.closest('img[data-zoom]');
+    if(im){
+      close();
+      var o=document.createElement('div'); o.className='lb'; o.id='lb'; o.setAttribute('role','dialog'); o.setAttribute('aria-label','도식 크게 보기');
+      o.innerHTML='<span class="hint">밀어서 이동 · 두 번 눌러 닫기</span><button class="x" type="button">닫기</button><img alt="'+esc(im.alt)+'" src="'+im.getAttribute('src')+'">';
+      document.body.appendChild(o); document.body.style.overflow='hidden';
+      return;
+    }
+    if(e.target.closest('#lb .x')||e.target.id==='lb') close();
+  });
+  document.addEventListener('dblclick',function(e){ if(e.target.closest('#lb')) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+})();
+
 render();
 </script>
 
