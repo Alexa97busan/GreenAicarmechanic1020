@@ -193,6 +193,41 @@ h2.sec{margin:12px 0 0;font-size:14px;font-weight:600;color:var(--text);letter-s
   .opts .btn,.btn{min-height:48px}
   .btn kbd{display:none}
 }
+
+/* 이해 중심 학습: 연결하기, 구조도 이름, 순서, 주제 */
+.mt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 14px;align-items:start}
+.mt-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.mt-i{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;text-align:left;border:1px solid var(--border);border-radius:var(--radius-row);background:var(--raised);cursor:pointer;line-height:1.45;overflow-wrap:anywhere;transition:border-color .15s var(--ease),background .15s var(--ease)}
+.mt-i:hover{border-color:var(--text)}
+.mt-i[aria-pressed="true"]{border-color:var(--text);outline:1px solid var(--text);outline-offset:-2px}
+.mt-i.ok{background:var(--ok-bg);color:var(--ok-ink);border-color:transparent}
+.mt-i.no{background:var(--no-bg);color:var(--no-ink);border-color:transparent}
+.mt-i.fixed{cursor:default}
+.mt-b{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:600;background:hsl(var(--h) 55% 88%);color:hsl(var(--h) 60% 22%)}
+.mt-b.empty{background:var(--rule);color:var(--muted)}
+.mt-note{font-size:13px;color:var(--muted)}
+.seq{display:flex;flex-direction:column;gap:8px}
+.seq-row{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:center}
+.seq-row>b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--rule);font-size:13px;font-weight:600}
+.seq-slot{min-height:46px;padding:8px 14px;border:1px dashed var(--control);border-radius:var(--radius-row);display:flex;align-items:center;color:var(--muted);font-size:13px;text-align:left;background:transparent;cursor:default;width:100%}
+.seq-slot.filled{border-style:solid;border-color:var(--border);background:var(--raised);color:var(--text);font-size:14px;cursor:pointer}
+.seq-slot.ok{background:var(--ok-bg);color:var(--ok-ink);border-color:transparent}
+.seq-slot.no{background:var(--no-bg);color:var(--no-ink);border-color:transparent}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.pool .chip{height:auto;min-height:40px;padding:8px 16px;white-space:normal;text-align:left;line-height:1.4}
+.pool .chip:disabled{opacity:.35;cursor:default}
+.dgimg{display:block;width:100%;height:auto;border-radius:var(--radius-row);background:#fff;cursor:zoom-in}
+.topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.topic{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-row);background:var(--raised);cursor:pointer;min-width:0;transition:border-color .15s var(--ease)}
+.topic:hover{border-color:var(--text)}
+.topic b{font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.topic span{font-size:12px;color:var(--muted)}
+.topic .bar{height:4px}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.points{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.points li{padding:10px 14px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-row);font-size:14px;line-height:1.7}
+@media (max-width:860px){.topics,.trio{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.topics,.trio{grid-template-columns:minmax(0,1fr)}.mt{gap:8px 8px}.mt-i{padding:8px;font-size:13px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ic path{stroke-dashoffset:0}}
 </style>
 
@@ -203,6 +238,7 @@ h2.sec{margin:12px 0 0;font-size:14px;font-weight:600;color:var(--text);letter-s
   </a>
   <nav aria-label="화면">
     <button data-v="home" aria-current="true">학습</button>
+    <button data-v="topics" aria-current="false">공부</button>
     <button data-v="stats" aria-current="false">기록</button>
   </nav>
   <span class="sub" id="today"></span>
@@ -511,7 +547,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&am
 function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t;} return a; }
 var $app=document.getElementById('app');
 var S={view:'home',cat:'전체',n:(DB.n|0),mode:null,queue:[],i:0,done:0,okc:0,miss:[],requeued:{},stage:'ask',res:null,reset:false};
-var MODES={today:'오늘의 학습',notation:'표기 훈련',exam:'모의시험'};
+var MODES={today:'오늘의 학습',notation:'표기 훈련',exam:'모의시험',topic:'주제 학습',dg:'구조도 이름 맞히기',ord:'순서 맞추기'};
 
 function pool(){ var o=[]; for(var i=0;i<D.length;i++){ if(S.cat==='전체'||D[i][0]===S.cat) o.push(i);} return o; }
 function counts(){
@@ -536,7 +572,7 @@ function build(mode){
   return q;
 }
 function start(mode){
-  S.mode=mode; S.queue=build(mode); S.i=0; S.done=0; S.okc=0; S.miss=[]; S.requeued={}; S.stage='ask'; S.res=null; S.view='session';
+  S.mode=mode; S.mt=null; S.queue=(mode==='topic'&&S.topicIds)?S.topicIds.slice():build(mode); S.i=0; S.done=0; S.okc=0; S.miss=[]; S.requeued={}; S.stage='ask'; S.res=null; S.view='session';
   render();
 }
 function rec(id,ok,fmt){
@@ -556,7 +592,7 @@ function answer(ok,fmt){
   }
 }
 function next(){
-  S.i++; S.stage='ask'; S.res=null;
+  S.i++; S.stage='ask'; S.res=null; S.mt=null;
   if(S.i>=S.queue.length){ S.view='result'; }
   render();
 }
@@ -568,7 +604,8 @@ var LABEL={ok:'정답',fmt:'표기가 달라요. 시험에서는 오답 처리�
 function head(){
   var t=new Date(); document.getElementById('today').textContent=(t.getMonth()+1)+'월 '+t.getDate()+'일';
   var b=document.querySelectorAll('nav button');
-  for(var i=0;i<b.length;i++) b[i].setAttribute('aria-current', String((b[i].dataset.v==='stats')===(S.view==='stats')));
+  var cur=(S.view==='stats')?'stats':(S.view==='topics'||S.view==='study')?'topics':'home';
+  for(var i=0;i<b.length;i++) b[i].setAttribute('aria-current', String(b[i].dataset.v===cur));
 }
 function home(){
   var c=counts(), t0=dayStart(), cats=['전체','기관','섀시','전기'], p=pool();
@@ -612,6 +649,11 @@ function home(){
   var names=['새로 틀림','1일 뒤','3일 뒤','7일 뒤','14일 뒤','30일 뒤'];
   h+='<section class="panel"><div class="panel-h"><h2>복습 상자</h2><span class="chip-n">다음 복습까지</span></div><div class="boxstrip">'+bx.map(function(n,i){return '<div class="boxcell"><span>'+names[i]+'</span><b>'+n+'</b><i>'+(due[i]?'오늘 '+due[i]:'')+'</i></div>';}).join('')+'</div>';
   h+='<div class="tip">맞히면 한 칸 오른쪽으로, 틀리면 맨 왼쪽으로 돌아갑니다.</div></section></div>';
+  h+='<section class="panel s12"><div class="panel-h"><h2>이해 중심 학습</h2><span class="chip-n">입력 없이 눌러서 푸는 방식</span></div><div class="trio">';
+  h+='<button class="rowcard" data-m="dg"><b>구조도 이름 맞히기</b><span>가려진 부품 이름을 짝지어 위치와 역할을 익힙니다</span></button>';
+  h+='<button class="rowcard" data-m="ord"><b>순서 맞추기</b><span>냉방 사이클, 연료 공급 같은 흐름을 순서대로 놓습니다</span></button>';
+  h+='<button class="rowcard" data-v="topics"><b>주제별 공부</b><span>구조도를 먼저 보고 핵심을 읽은 뒤 문제를 풉니다</span></button>';
+  h+='</div></section>';
   var weak=Object.keys(DB.p).filter(function(k){return DB.p[k].w>0;}).sort(function(a,b){return (DB.p[b].w*2+DB.p[b].n)-(DB.p[a].w*2+DB.p[a].n);}).slice(0,3);
   h+='<section class="panel s12"><div class="panel-h"><h2>자주 틀리는 문제</h2><button class="link" data-v="stats" style="padding:0">기록 보기</button></div>';
   if(weak.length) h+='<div class="miss">'+weak.map(function(k){var it=D[k],q=DB.p[k];return '<div><b>'+esc(it[3])+'</b><span>정답: '+esc(it[4]).replace(/\n/g,' / ')+' · 오답 '+q.w+'회</span></div>';}).join('')+'</div>';
@@ -633,9 +675,11 @@ function session(){
     if(type==='s'){ h+='<form id="f" class="row" autocomplete="off"><input type="text" id="ans" placeholder="정답 입력" aria-label="정답" autocapitalize="off" autocorrect="off" spellcheck="false"><button class="btn pri" type="submit">확인</button></form>'; }
     else if(op){ h+='<div class="opts">'+op.map(function(t,k){return '<button class="btn" data-c="'+k+'">'+'①②③④'.charAt(k)+'&nbsp;&nbsp;'+esc(t)+'</button>';}).join('')+'</div>'; }
     else if(type==='o'){ h+='<div class="row"><button class="btn grow" data-o="O">O</button><button class="btn grow" data-o="X">X</button></div>'; }
+    else if(type==='l' && lpairs(it)){ S.mt=S.mt||mkMT(lpairs(it)); h+='<div class="mt-note">왼쪽을 누르고 짝이 되는 오른쪽을 누르세요. 이어진 항목을 다시 누르면 풀립니다.</div>'+mtHTML(S.mt)+mtCheckRow(S.mt); }
     else { h+='<div class="row"><button class="btn pri grow" id="show">정답 보기</button></div>'; }
   } else {
-    if(type==='s'||type==='o'||op){
+    if(type==='l' && S.mt && S.mt.checked){ h+=mtHTML(S.mt); }
+    if(type==='s'||type==='o'||op||(type==='l'&&S.mt&&S.mt.checked)){
       var r=S.res;
       h+='<div class="res '+r+'">'+ICON[r]+'<h3>'+LABEL[r]+'</h3>';
       if(r!=='ok'||type==='s') h+='<div class="key">'+esc(it[4])+'</div>';
@@ -695,7 +739,8 @@ function stats(){
 }
 function render(){
   head();
-  $app.innerHTML = S.view==='home'?home():S.view==='session'?session():S.view==='result'?result():stats();
+  $app.innerHTML = S.view==='home'?home():S.view==='session'?session():S.view==='result'?result():S.view==='topics'?topicsView():S.view==='study'?studyView():S.view==='dg'?dgView():S.view==='ord'?ordView():S.view==='xresult'?xresult():stats();
+  if(S.view==='dg') dgLoad();
   var a=document.getElementById('ans'); if(a) a.focus();
   var n=document.getElementById('nx'); if(n) n.focus();
   var s=document.getElementById('show'); if(s) s.focus();
@@ -707,10 +752,10 @@ function handleRes(r,typed){
 }
 document.addEventListener('click',function(e){
   var t=e.target.closest('button'); if(!t) return;
-  if(t.dataset.v){ S.view=t.dataset.v==='stats'?'stats':'home'; S.reset=false; render(); return; }
+  if(t.dataset.v){ S.view=(t.dataset.v==='stats'||t.dataset.v==='topics')?t.dataset.v:'home'; S.reset=false; render(); window.scrollTo(0,0); return; }
   if(t.dataset.n!==undefined){ S.n=+t.dataset.n; DB.n=S.n; save(); render(); return; }
   if(t.dataset.cat){ S.cat=t.dataset.cat; render(); return; }
-  if(t.dataset.m){ if(!t.disabled) start(t.dataset.m); return; }
+  if(t.dataset.m){ if(!t.disabled){ if(t.dataset.m==='dg') startDG(); else if(t.dataset.m==='ord') startOrd(); else start(t.dataset.m); } return; }
   if(t.dataset.go){ S.view='home'; render(); return; }
   if(t.hasAttribute('data-quit')){ S.view=S.done?'result':'home'; render(); return; }
   if(t.dataset.o){ var it=D[S.queue[S.i]]; handleRes(t.dataset.o===it[4]?'ok':'no'); return; }
@@ -731,8 +776,8 @@ document.addEventListener('keydown',function(e){
   var it=D[S.queue[S.i]]; if(!it) return;
   var hasOpt=(it[2]==='m'&&OPT[S.queue[S.i]]);
   if(S.stage==='ask' && hasOpt){ var nk=parseInt(e.key,10); if(nk>=1&&nk<=4){ var pk=S.ch.list[nk-1]; handleRes(pk===it[4]?'ok':'no',pk); return; } }
-  if(S.stage==='res' && (it[2]==='s'||it[2]==='o'||hasOpt) && e.key==='Enter'){ e.preventDefault(); next(); return; }
-  if(S.stage==='res' && !hasOpt && (it[2]==='m'||it[2]==='l')){
+  if(S.stage==='res' && (it[2]==='s'||it[2]==='o'||(it[2]==='l'&&S.mt&&S.mt.checked)||hasOpt) && e.key==='Enter'){ e.preventDefault(); next(); return; }
+  if(S.stage==='res' && !hasOpt && (it[2]==='m'||(it[2]==='l'&&!(S.mt&&S.mt.checked)))){
     var m={'1':'no','2':'fmt','3':'ok'}[e.key]; if(m){ answer(m==='ok',false); next(); }
   }
   if(S.stage==='ask' && it[2]==='o'){ var k=e.key.toUpperCase(); if(k==='O'||k==='X') handleRes(k===it[4]?'ok':'no'); }
@@ -753,6 +798,251 @@ document.addEventListener('keydown',function(e){
   document.addEventListener('dblclick',function(e){ if(e.target.closest('#lb')) close(); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
 })();
+
+/* ===== 이해 중심 학습 ===== */
+var HUE=[175,32,265,330,95,205,12,150];
+function lpairs(it){
+  var ls=String(it[4]).split('\n'), out=[];
+  for(var i=0;i<ls.length;i++){ var p=ls[i].split(' = '); if(p.length!==2) return null; out.push([p[0].trim(),p[1].trim()]); }
+  return out.length>=2?out:null;
+}
+function mkMT(pairs,extra){
+  var rights=pairs.map(function(p){return p[1];}).concat(extra||[]);
+  var order=shuffle(rights.map(function(_,i){return i;}));
+  var right=order.map(function(i){return rights[i];});
+  var ans=pairs.map(function(_,i){return order.indexOf(i);});
+  return {left:pairs.map(function(p){return p[0];}),right:right,ans:ans,map:{},sel:null,checked:false,res:null};
+}
+function mtLeftOf(mt,j){ for(var k in mt.map) if(mt.map[k]===j) return +k; return -1; }
+function mtHTML(mt){
+  var h='<div class="mt"><div class="mt-col">';
+  mt.left.forEach(function(x,i){
+    var cls='mt-i mt-l'+(mt.checked?(mt.res[i]?' ok':' no')+' fixed':'');
+    var b=mt.map[i]!==undefined?'<span class="mt-b" style="--h:'+HUE[i%8]+'">'+(i+1)+'</span>':'<span class="mt-b empty">'+(i+1)+'</span>';
+    h+='<button class="'+cls+'" data-ml="'+i+'" aria-pressed="'+(mt.sel===i)+'"'+(mt.checked?' disabled':'')+'>'+b+'<span>'+esc(x)+'</span></button>';
+  });
+  h+='</div><div class="mt-col">';
+  mt.right.forEach(function(x,j){
+    var k=mtLeftOf(mt,j), cls='mt-i mt-r'+(mt.checked&&k>=0?(mt.res[k]?' ok':' no')+' fixed':'');
+    var b=k>=0?'<span class="mt-b" style="--h:'+HUE[k%8]+'">'+(k+1)+'</span>':'';
+    h+='<button class="'+cls+'" data-mr="'+j+'"'+(mt.checked?' disabled':'')+'>'+b+'<span>'+esc(x)+'</span></button>';
+  });
+  return h+'</div></div>';
+}
+function mtCheckRow(mt){
+  var full=Object.keys(mt.map).length===mt.left.length;
+  return '<div class="row"><button class="btn pri grow" data-mt="check"'+(full?'':' disabled')+'>확인</button></div>';
+}
+function mtCheck(){
+  var mt=S.mt; if(!mt||mt.checked) return false;
+  mt.res=mt.left.map(function(_,i){return mt.map[i]===mt.ans[i];});
+  mt.checked=true;
+  return mt.res.every(Boolean);
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b||!S.mt||S.mt.checked) return;
+  var mt=S.mt;
+  if(b.dataset.ml!==undefined){
+    var i=+b.dataset.ml;
+    if(mt.map[i]!==undefined){ delete mt.map[i]; mt.sel=i; } else mt.sel=(mt.sel===i)?null:i;
+    render(); return;
+  }
+  if(b.dataset.mr!==undefined){
+    var j=+b.dataset.mr, k=mtLeftOf(mt,j);
+    if(mt.sel===null){ if(k>=0){ delete mt.map[k]; mt.sel=k; render(); } return; }
+    if(k>=0) delete mt.map[k];
+    mt.map[mt.sel]=j; mt.sel=null; render(); return;
+  }
+  if(b.dataset.mt==='check'){
+    if(S.view==='session'){ var ok=mtCheck(); handleRes(ok?'ok':'no'); }
+    else if(S.view==='dg'){ var ok2=mtCheck(); dgAnswer(ok2); }
+  }
+});
+
+/* --- 공통 --- */
+function touchDay(){
+  var t=dayStart();
+  if(DB.last!==t){ DB.streak=(DB.last===t-DAY)?DB.streak+1:1; DB.last=t; DB.days=(DB.days||0)+1; }
+  save();
+}
+var SVGC={};
+function getSvg(key){
+  if(SVGC[key]) return Promise.resolve(SVGC[key]);
+  return fetch('diagrams/'+key+'.svg').then(function(r){ if(!r.ok) throw 0; return r.text(); }).then(function(x){ return SVGC[key]=x; });
+}
+function svgUri(s){ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s); }
+function xResult(mode,ok,total,miss){ S.xr={mode:mode,ok:ok,total:total,miss:miss}; S.view='xresult'; touchDay(); render(); window.scrollTo(0,0); }
+function xresult(){
+  var x=S.xr, pct=Math.round(x.ok/Math.max(1,x.total)*100);
+  var h='<div class="col narrow"><h1 class="ttl">'+MODES[x.mode]+' 결과</h1><div class="card"><div class="score">'+pct+'<small>% · '+x.ok+'/'+x.total+'</small></div></div>';
+  if(x.miss.length) h+='<h2 class="sec">다시 볼 주제 '+x.miss.length+'</h2><div class="miss">'+x.miss.map(function(m){return '<div><b>'+esc(m)+'</b></div>';}).join('')+'</div>';
+  else h+='<div class="empty">모두 맞혔습니다.</div>';
+  h+='<div class="row" style="margin-top:8px"><button class="btn pri grow" data-m="'+x.mode+'">한 번 더</button><button class="btn grow" data-go="home">처음으로</button></div></div>';
+  return h;
+}
+
+/* --- 구조도 이름 맞히기 --- */
+var NOLABEL=['시험 포인트','점검 포인트','단점','측정 설정','제어 원리','시험 방법','프로토콜','추가','입력 (센서)','출력 (액추에이터)','입력','출력'];
+function dgCands(doc){
+  var out=[], seen={};
+  [].slice.call(doc.querySelectorAll('text')).forEach(function(el){
+    if(el.getAttribute('class')) return;
+    var s=(el.textContent||'').trim();
+    if(s.length<2||s.length>16||seen[s]||NOLABEL.indexOf(s)>-1) return;
+    if(/[\u2192\u2713\u2717:=]|^\d+$|^[\d.]+V?$/.test(s)) return;
+    seen[s]=1; out.push(el);
+  });
+  return out;
+}
+function dgMask(text){
+  var doc=new DOMParser().parseFromString(text,'image/svg+xml');
+  var c=dgCands(doc);
+  if(c.length<6) return null;
+  var K=c.length>=10?5:4, pick=shuffle(c).slice(0,K);
+  var rest=shuffle(c.filter(function(x){return pick.indexOf(x)<0;})).slice(0,2);
+  var ns='http://www.w3.org/2000/svg';
+  pick.forEach(function(el,i){
+    var x=+el.getAttribute('x'), y=+el.getAttribute('y'), s=(el.textContent||'').trim();
+    var st=el.getAttribute('style')||'', m=st.match(/font-size:\s*(\d+)/), fs=m?+m[1]:12;
+    var w=0; for(var k=0;k<s.length;k++) w+=s.charCodeAt(k)>255?fs:fs*.58; w+=12;
+    var an=el.getAttribute('text-anchor')||'start', rx=an==='middle'?x-w/2:an==='end'?x-w:x-3;
+    var g=doc.createElementNS(ns,'g');
+    var r=doc.createElementNS(ns,'rect'); r.setAttribute('x',rx); r.setAttribute('y',y-fs-1); r.setAttribute('width',Math.max(w,34)); r.setAttribute('height',fs+8); r.setAttribute('rx',4);
+    r.setAttribute('fill','#fff'); r.setAttribute('stroke','#c05a00'); r.setAttribute('stroke-width','1.4'); r.setAttribute('stroke-dasharray','4 2');
+    var q=doc.createElementNS(ns,'text'); q.setAttribute('x',rx+Math.max(w,34)/2); q.setAttribute('y',y+1); q.setAttribute('text-anchor','middle'); q.setAttribute('style','font-size:14px;font-weight:700;fill:#c05a00');
+    q.textContent=String(i+1);
+    g.appendChild(r); g.appendChild(q); el.parentNode.replaceChild(g,el);
+  });
+  return {svg:new XMLSerializer().serializeToString(doc.documentElement),names:pick.map(function(e){return (e.textContent||'').trim();}),extra:rest.map(function(e){return (e.textContent||'').trim();})};
+}
+function startDG(){
+  var keys=shuffle(Object.keys(DXT)).slice(0,8);
+  S.dq={keys:keys,i:0,ok:0,miss:[],item:null,busy:false,fail:false};
+  S.mode='dg'; S.view='dg'; S.mt=null; render(); window.scrollTo(0,0);
+}
+function dgLoad(){
+  var q=S.dq; if(!q||q.item||q.busy||q.fail) return;
+  if(q.i>=q.keys.length){ xResult('dg',q.ok,q.keys.length,q.miss); return; }
+  q.busy=true;
+  var key=q.keys[q.i];
+  getSvg(key).then(function(text){
+    var m=dgMask(text); q.busy=false;
+    if(!m){ q.i++; q.keys.splice(q.i-1,1); q.i--; render(); return; }
+    var pairs=m.names.map(function(n,i){return [String(i+1),n];});
+    var mt=mkMT(pairs,m.extra); mt.left=m.names.map(function(_,i){return '빈칸 '+(i+1);});
+    S.mt=mt; q.item={key:key,masked:m.svg,full:text}; render();
+  }).catch(function(){ q.busy=false; q.fail=true; render(); });
+}
+function dgView(){
+  var q=S.dq, h='<div class="col narrow" style="padding-top:28px">';
+  if(q.fail) return h+'<div class="card"><h1 class="q">구조도를 불러오지 못했습니다</h1><p class="tip">인터넷 주소(https)로 열어야 구조도를 불러올 수 있습니다.</p><button class="btn grow" data-go="home">처음으로</button></div></div>';
+  h+='<div class="meta"><span>'+MODES.dg+'</span><span>'+Math.min(q.i+1,q.keys.length)+' / '+q.keys.length+'</span></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.keys.length+'" aria-valuenow="'+q.i+'"><i style="width:'+(q.i/q.keys.length*100)+'%"></i></div>';
+  if(!q.item) return h+'<div class="card"><p class="tip">구조도를 불러오는 중…</p></div></div>';
+  var it=q.item, title=DXT[it.key];
+  h+='<div class="card"><div class="tag"><span>'+esc(title)+'</span><em>구조도</em></div>';
+  h+='<h1 class="q">가려진 부품 이름을 짝지으세요.</h1>';
+  h+='<img class="dgimg" data-zoom="1" alt="가려진 구조도" src="'+svgUri(S.mt.checked?it.full:it.masked)+'">';
+  h+='<div class="mt-note">그림의 빈칸 번호와 아래 이름을 짝지어 주세요. 그림을 누르면 크게 볼 수 있습니다.</div>';
+  h+=mtHTML(S.mt);
+  if(!S.mt.checked) h+=mtCheckRow(S.mt);
+  else h+='<div class="res '+(S.mt.res.every(Boolean)?'ok':'no')+'">'+(S.mt.res.every(Boolean)?ICON.ok:ICON.no)+'<h3>'+(S.mt.res.every(Boolean)?'모두 맞혔습니다':'틀린 칸이 있습니다')+'</h3><div class="tip">위 그림이 정답 그림으로 바뀌었습니다.</div></div><div class="row"><button class="btn pri grow" data-dgnext="1">다음</button></div>';
+  return h+'</div><button class="link" data-quit>그만하기</button></div>';
+}
+function dgAnswer(ok){
+  var q=S.dq; q.done=(q.done||0)+1; if(ok) q.ok++; else q.miss.push(DXT[q.item.key]);
+  render();
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.dgnext){ var q=S.dq; q.i++; q.item=null; S.mt=null; render(); window.scrollTo(0,0); return; }
+  if(b.hasAttribute('data-quit') && (S.view==='dg'||S.view==='ord')){ S.view='home'; S.mt=null; render(); e.stopPropagation(); }
+},true);
+
+/* --- 순서 맞추기 --- */
+var ORD=[
+ {t:'TXV 방식 냉방 사이클',fig:'cooling-cycle',s:['압축기','응축기','리시버 드라이어','팽창밸브','증발기']},
+ {t:'커먼레일 연료 공급',fig:'common-rail',s:['저압 펌프','고압 펌프','커먼레일','인젝터']},
+ {t:'차량진단기(스캔툴) 사용 순서',fig:'diagnosis-flow',s:['차량 제조사','차량명','차량 연식','시스템']},
+ {t:'디젤 인젝터 작동 4단계',fig:'injection-stages',s:['닫힘(고압 적용)','열림(분사 개시)','완전 열림','닫힘(분사 완료)']},
+ {t:'토크컨버터 동력 전달',fig:'torque-converter',s:['엔진·프런트 커버','임펠러(펌프)','오일','터빈','입력축']},
+ {t:'브레이크 유압 전달',fig:'disc-brake',s:['브레이크 페달','마스터 실린더','브레이크 호스','캘리퍼 피스톤','패드','로터']},
+ {t:'공기 브레이크 계통',fig:'air-brake',s:['공기 압축기','공기 탱크','브레이크 밸브','브레이크 챔버']},
+ {t:'증발가스 처리 경로',fig:'evap-control',s:['연료탱크','캐니스터','PCSV','흡기 매니폴드']},
+ {t:'ABS 유압 제어 흐름',fig:'abs-hydraulic',s:['휠 스피드 센서','HECU','하이드롤릭 밸브','휠 실린더']},
+ {t:'동력 조향 기어박스 동력 전달',fig:'steering-gearbox',s:['스티어링 휠','컬럼','피니언','랙','타이로드']}
+];
+function startOrd(){
+  S.oq={items:shuffle(ORD).slice(0,6),i:0,ok:0,miss:[],cur:null};
+  S.mode='ord'; S.view='ord'; S.oq.cur=mkOrd(); render(); window.scrollTo(0,0);
+}
+function mkOrd(){
+  var it=S.oq.items[S.oq.i]; if(!it) return null;
+  return {it:it,pool:shuffle(it.s.map(function(_,i){return i;})),ans:[],checked:false,ok:false};
+}
+function ordView(){
+  var q=S.oq, c=q.cur, h='<div class="col narrow" style="padding-top:28px">';
+  h+='<div class="meta"><span>'+MODES.ord+'</span><span>'+Math.min(q.i+1,q.items.length)+' / '+q.items.length+'</span></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="width:'+(q.i/q.items.length*100)+'%"></i></div>';
+  h+='<div class="card"><div class="tag"><span>'+esc(c.it.t)+'</span><em>순서</em></div><h1 class="q">알맞은 순서대로 눌러 놓으세요.</h1>';
+  h+='<div class="seq">'+c.it.s.map(function(_,k){
+    var v=c.ans[k], has=v!==undefined, cls='seq-slot'+(has?' filled':'')+(c.checked?(v===k?' ok':' no'):'');
+    return '<div class="seq-row"><b>'+(k+1)+'</b><button class="'+cls+'" data-oslot="'+k+'"'+(c.checked||!has?' disabled':'')+'>'+(has?esc(c.it.s[v]):'여기에 놓기')+'</button></div>';
+  }).join('')+'</div>';
+  if(!c.checked){
+    h+='<div class="pool">'+c.pool.map(function(i){var used=c.ans.indexOf(i)>-1; return '<button class="chip" data-opool="'+i+'"'+(used?' disabled':'')+'>'+esc(c.it.s[i])+'</button>';}).join('')+'</div>';
+    h+='<div class="row"><button class="btn pri grow" data-ocheck="1"'+(c.ans.length===c.it.s.length?'':' disabled')+'>확인</button></div>';
+  } else {
+    h+='<div class="res '+(c.ok?'ok':'no')+'">'+(c.ok?ICON.ok:ICON.no)+'<h3>'+(c.ok?'순서가 맞습니다':'순서가 다릅니다')+'</h3>'+(c.ok?'':'<div class="key">'+c.it.s.map(esc).join(' → ')+'</div>')+'</div>';
+    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[c.it.fig]||c.it.t)+' <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(c.it.t)+'" src="diagrams/'+c.it.fig+'.svg"></div></div></div>';
+    h+='<div class="row"><button class="btn pri grow" data-onext="1">다음</button></div>';
+  }
+  return h+'</div><button class="link" data-quit>그만하기</button></div>';
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b||S.view!=='ord') return;
+  var c=S.oq.cur;
+  if(b.dataset.opool!==undefined&&!c.checked){ c.ans.push(+b.dataset.opool); render(); return; }
+  if(b.dataset.oslot!==undefined&&!c.checked){ c.ans.splice(+b.dataset.oslot,1); render(); return; }
+  if(b.dataset.ocheck&&!c.checked){ c.checked=true; c.ok=c.ans.every(function(v,k){return v===k;}); if(c.ok) S.oq.ok++; else S.oq.miss.push(c.it.t); render(); return; }
+  if(b.dataset.onext){ S.oq.i++; if(S.oq.i>=S.oq.items.length){ xResult('ord',S.oq.ok,S.oq.items.length,S.oq.miss); return; } S.oq.cur=mkOrd(); render(); window.scrollTo(0,0); return; }
+});
+
+/* --- 주제별 공부 --- */
+function topicIds(key){ var o=[]; Object.keys(DX).forEach(function(i){ if(DX[i].indexOf(key)>-1) o.push(+i); }); return o; }
+function topicArea(ids){ var c={}; ids.forEach(function(i){ c[D[i][0]]=(c[D[i][0]]||0)+1; }); var best='기관',n=0; Object.keys(c).forEach(function(k){ if(c[k]>n){n=c[k];best=k;} }); return best; }
+function topicsView(){
+  var by={'기관':[],'섀시':[],'전기':[]};
+  Object.keys(DXT).forEach(function(k){ var ids=topicIds(k); if(!ids.length) return; by[topicArea(ids)].push({k:k,ids:ids}); });
+  var h='<div class="col"><div class="greet"><div><h1>주제별 공부</h1><p>구조도를 먼저 보고 핵심을 읽은 뒤, 그 주제의 문제를 풉니다. '+Object.keys(DXT).length+'개 주제</p></div></div>';
+  ['기관','섀시','전기'].forEach(function(a){
+    h+='<section class="panel"><div class="panel-h"><h2>'+a+'</h2><span class="chip-n">'+by[a].length+'개 주제</span></div><div class="topics">';
+    by[a].forEach(function(x){
+      var m=0; x.ids.forEach(function(i){ var r=DB.p[i]; if(r&&r.b>=4) m++; });
+      h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="width:'+(m/x.ids.length*100)+'%"></i></div></button>';
+    });
+    h+='</div></section>';
+  });
+  return h+'</div>';
+}
+function studyView(){
+  var k=S.topic, ids=topicIds(k);
+  var h='<div class="col narrow" style="padding-top:12px"><button class="link" data-v="topics" style="padding:0">‹ 주제 목록</button><h1 class="ttl" style="margin-top:12px">'+esc(DXT[k])+'</h1>';
+  h+='<div class="detail"><div class="cap">구조도 <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k])+'" src="diagrams/'+k+'.svg"></div></div>';
+  h+='<section class="panel"><div class="panel-h"><h2>핵심 정리</h2></div><ul class="points" id="pts"><li class="tip">불러오는 중…</li></ul></section>';
+  h+='<div class="row"><button class="btn pri grow" data-tstart="1">이 주제 문제 풀기 ('+Math.min(10,ids.length)+'문제)</button></div></div>';
+  getSvg(k).then(function(text){
+    var doc=new DOMParser().parseFromString(text,'image/svg+xml'), hh=+doc.documentElement.getAttribute('height')||0, pts=[];
+    [].slice.call(doc.querySelectorAll('text.n')).forEach(function(el){ if(el.getAttribute('x')==='18' && +el.getAttribute('y')>hh-60) pts.push((el.textContent||'').trim()); });
+    var ul=document.getElementById('pts'); if(ul) ul.innerHTML=pts.length?pts.map(function(p){return '<li>'+esc(p)+'</li>';}).join(''):'<li class="tip">구조도의 부품과 흐름을 먼저 살펴보세요.</li>';
+  }).catch(function(){ var ul=document.getElementById('pts'); if(ul) ul.innerHTML='<li class="tip">구조도의 부품과 흐름을 먼저 살펴보세요.</li>'; });
+  return h;
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.topic){ S.topic=b.dataset.topic; S.view='study'; render(); window.scrollTo(0,0); return; }
+  if(b.dataset.tstart){ var ids=shuffle(topicIds(S.topic)).slice(0,10); S.topicIds=ids; start('topic'); window.scrollTo(0,0); return; }
+});
 
 render();
 </script>
