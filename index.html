@@ -149,13 +149,10 @@ input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .ask{white-space:pre-wrap;font-size:14px;line-height:1.75;overflow-wrap:anywhere;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-row);padding:12px;animation:rise .2s ease-out}
 textarea#cpbox{width:100%;font-size:13px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-row);background:var(--raised);color:var(--text);resize:vertical}
 .detail{margin:4px 0;border-radius:var(--radius-row);background:var(--raised);border:1px solid var(--border)}
-.detail summary{cursor:pointer;font-size:13px;color:var(--muted);padding:10px 14px;list-style:none;border-radius:var(--radius-row)}
-.detail summary::-webkit-details-marker{display:none}
-.detail summary::before{content:"▸ ";color:var(--accent)}
-.detail[open] summary::before{content:"▾ "}
+.detail .cap{font-size:13px;color:var(--muted);padding:10px 14px}
 .detail .wide{overflow-x:auto;padding:0 8px 10px;-webkit-overflow-scrolling:touch}
 .figwide{display:block;width:100%;min-width:640px;height:auto;border-radius:10px;cursor:zoom-in}
-.detail summary em{font-style:normal;color:var(--accent);margin-left:6px;font-size:12px}
+.detail .cap em{font-style:normal;color:var(--accent);margin-left:6px;font-size:12px}
 .lb{position:fixed;inset:0;background:rgba(15,17,16,.94);z-index:50;overflow:auto;-webkit-overflow-scrolling:touch;padding:60px 16px 28px}
 .lb img{display:block;margin:0 auto;width:max(1000px,min(1500px,100%));height:auto;background:#fff;border-radius:12px;max-width:none}
 .lb .x{position:fixed;top:12px;right:12px;min-height:40px;padding:0 18px;border-radius:999px;border:1px solid #fff;background:#fff;color:#111;font-weight:600;cursor:pointer;z-index:51}
@@ -443,7 +440,7 @@ function fig(id){
   if(k&&DG[k]) h+='<img class="figimg" data-zoom="1" alt="도식" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(DG[k])+'">';
   var xs=DX[id]||[];
   for(var j=0;j<xs.length;j++){ var f='diagrams/'+xs[j]+'.svg';
-    h+='<details class="detail" open><summary>구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기</em></summary><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></details>'; }
+    h+='<div class="detail"><div class="cap">구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></div>'; }
   if(IACT[id]) h+='<div class="detail"><div class="iact"><b>인터랙티브 도식</b><a href="interactive/disc-brake-gap.html" target="_blank" rel="noopener">디스크 브레이크 · 유격 ▸</a><a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></div>';
   return h;
 }
