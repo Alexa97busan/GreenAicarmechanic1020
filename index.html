@@ -452,9 +452,16 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   .detail .wide{overflow-x:visible}
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) img[src$=".svg"],:root:not([data-theme="light"]) img[src^="data:image/svg"]{filter:invert(.9) hue-rotate(180deg)}
+  :root:not([data-theme="light"]) img[src$=".svg"],:root:not([data-theme="light"]) img[src^="data:image/svg"]{filter:brightness(.94)}
+  :root:not([data-theme="light"])[data-dg="dark"] img[src$=".svg"],:root:not([data-theme="light"])[data-dg="dark"] img[src^="data:image/svg"]{filter:invert(.9) hue-rotate(180deg) contrast(1.12) brightness(1.18)}
+  :root:not([data-theme="light"]) .dgt{display:inline-flex}
 }
-:root[data-theme="dark"] img[src$=".svg"],:root[data-theme="dark"] img[src^="data:image/svg"]{filter:invert(.9) hue-rotate(180deg)}
+:root[data-theme="dark"] img[src$=".svg"],:root[data-theme="dark"] img[src^="data:image/svg"]{filter:brightness(.94)}
+:root[data-theme="dark"][data-dg="dark"] img[src$=".svg"],:root[data-theme="dark"][data-dg="dark"] img[src^="data:image/svg"]{filter:invert(.9) hue-rotate(180deg) contrast(1.12) brightness(1.18)}
+:root[data-theme="dark"] .dgt{display:inline-flex}
+.dgt{display:none;align-items:center;min-height:36px;padding:0 14px;margin-left:auto;border:1px solid var(--control);border-radius:var(--radius-control);background:transparent;color:var(--text);font-size:13px;cursor:pointer;transition:transform .12s var(--ease)}
+.dgt:active{transform:scale(.97)}
+.detail .cap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 /* 접근성 · 학습 탭 · 백업 */
 .skip{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;z-index:100;padding:10px 16px;border-radius:var(--radius-control);background:var(--primary);color:var(--on-primary);text-decoration:none;font-size:14px}
 .skip:focus{position:fixed;left:8px;top:8px;width:auto;height:auto;overflow:visible;clip:auto}
@@ -1095,6 +1102,7 @@ function render(){
   var n=document.getElementById('nx'); if(n) n.focus();
   var s=document.getElementById('show'); if(s) s.focus();
   heroStart();
+  if(window.dgInject) dgInject();
   if(S.view==='gen'){ var g=document.getElementById('gans')||document.querySelector('[data-gnext]'); if(g) g.focus(); }
 }
 function shakeCard(){ var c=document.getElementById('card'); if(c){ c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); } }
@@ -2261,6 +2269,24 @@ document.addEventListener('keydown',function(e){
 (function(){ var sx=null;
   document.addEventListener('pointerdown',function(e){ sx=e.target.id==='lbi'?e.clientX:null; });
   document.addEventListener('pointerup',function(e){ if(sx===null) return; var dx=e.clientX-sx; sx=null; if(Math.abs(dx)>40) lbSet(dx<0?1:-1); });
+})();
+
+
+/* ===== 다크 모드 구조도: 기본은 밝은 종이 카드, 원하면 어둡게 ===== */
+(function(){
+  var K='jeongbi-dg', root=document.documentElement;
+  function get(){ try{ return localStorage.getItem(K)==='dark'?'dark':'light'; }catch(e){ return 'light'; } }
+  function label(){ return get()==='dark'?'밝은 도식으로 보기':'어두운 도식으로 보기'; }
+  function apply(){ if(get()==='dark') root.setAttribute('data-dg','dark'); else root.removeAttribute('data-dg'); [].slice.call(document.querySelectorAll('.dgt')).forEach(function(b){ b.textContent=label(); }); }
+  window.dgInject=function(){
+    [].slice.call(document.querySelectorAll('.detail .cap')).forEach(function(c){ if(c.querySelector('.dgt')) return; var b=document.createElement('button'); b.type='button'; b.className='dgt'; b.setAttribute('data-dgt','1'); b.textContent=label(); c.appendChild(b); });
+  };
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-dgt]'); if(!b) return;
+    try{ localStorage.setItem(K,get()==='dark'?'light':'dark'); }catch(x){}
+    apply(); announce(get()==='dark'?'구조도를 어둡게 봅니다.':'구조도를 밝게 봅니다.');
+  });
+  apply();
 })();
 
 render();
