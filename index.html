@@ -36,6 +36,10 @@ input[type=date]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
   .panel{border:1px solid #bbb;padding:10px;break-inside:avoid}
   .ci{border:1px solid #ddd}
 }
+.areas.pick .atile b{font-size:20px}
+.areas.pick .atile span{font-size:14px}
+.areas.pick .atile[aria-pressed=true]{border-color:var(--accent);box-shadow:none;outline:2px solid var(--accent);outline-offset:-2px}
+.pickhint{font-size:20px;font-weight:600;text-align:center;padding:4px 0 8px}
 </style>
 <title>정비 기출 노트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1471,10 +1475,13 @@ function creditsBox(){
 function topicsView(){
   var by={'기관':[],'섀시':[],'전기':[]};
   Object.keys(DXT).forEach(function(k){ var ids=topicIds(k); if(!ids.length) return; by[topicArea(ids)].push({k:k,ids:ids}); });
-  var cur=S.sarea||'기관', total=by['기관'].length+by['섀시'].length+by['전기'].length;
+  var cur=S.sarea, total=by['기관'].length+by['섀시'].length+by['전기'].length;
   var h='<div class="col"><div class="greet"><div><h1>주제별 공부</h1><p>사진과 구조도로 개념을 먼저 보고, 그 주제의 문제를 풉니다. '+total+'개 주제</p></div></div>';
-  h+='<div class="chips" role="group" aria-label="영역">'+['기관','섀시','전기'].map(function(a){ return '<button class="chip" type="button" data-sarea="'+a+'" aria-pressed="'+(cur===a)+'">'+a+' · '+by[a].length+'개 주제</button>'; }).join('')+'</div>';
+  var PIC={'기관':['catalyst','삼원촉매 · 디젤 · 센서 · 배출가스'],'섀시':['strut','현가 · 조향 · 변속기 · 제동'],'전기':['harness','통신 · 회로 · 공조 · 바디 전장']};
+  h+='<div class="areas pick" role="group" aria-label="영역 고르기">'+['기관','섀시','전기'].map(function(a){ return '<button class="atile" type="button" data-sarea="'+a+'" aria-pressed="'+(cur===a)+'"><img src="photos/'+PIC[a][0]+'.jpg" alt="" loading="eager"><div><b>'+a+' · '+by[a].length+'개 주제</b><span>'+PIC[a][1]+'</span></div></button>'; }).join('')+'</div>';
+  if(!cur) h+='<div class="pickhint">공부할 영역을 먼저 고르세요.</div>';
   h+='<div class="tsearch"><input type="search" id="tsearch" placeholder="주제 검색 (예: 산소센서, 종단저항, 휠 홉)" aria-label="주제 검색" autocomplete="off"><div id="tres" role="status"></div></div>';
+  if(!cur) return h+creditsBox()+'</div>';
   var nq=0; D.forEach(function(r){ if(r[0]===cur) nq++; });
   h+='<section class="panel"><div class="panel-h"><h2>'+cur+'</h2><span class="chip-n">문제 '+nq+'개</span></div>'+mapCards(cur);
   h+='<details class="more"><summary>'+cur+' 주제 전체 보기 ('+by[cur].length+'개)</summary><div class="topics">';
