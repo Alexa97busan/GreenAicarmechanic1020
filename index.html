@@ -290,6 +290,28 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .link:active{background:var(--surface)}
 @media (hover:hover) and (pointer:fine){.link:hover{background:var(--surface)}}
 @media (max-width:480px){.q{font-size:20px}.card{padding:22px 18px}}
+/* 그림 위 부품 탭 설명 · 값 조절 */
+.hsw{position:relative;width:100%;min-width:640px}
+.hsw .figwide{min-width:0}
+.hsb{position:absolute;display:block;padding:0;margin:0;min-height:0;background:transparent;border:0;border-bottom:1.5px dotted var(--accent);border-radius:0;cursor:pointer;touch-action:manipulation}
+.hsb.on{background:rgba(27,110,102,.18)}
+.hsm{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--accent);border:2px solid var(--ground);pointer-events:none}
+.hsc{position:relative;margin:0 14px 12px;padding:12px 40px 12px 14px;background:var(--surface);border-radius:var(--radius-row);font-size:14px;line-height:1.55}
+.hsc .hsi{margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
+.hsc .hsi:first-of-type{margin-top:6px}
+.hsc small{color:var(--muted)}
+.hsc .hsx{position:absolute;right:2px;top:2px;min-width:40px;min-height:40px;padding:0;background:none;border:0;font-size:20px;color:var(--muted);cursor:pointer}
+.sim{margin:0 14px 14px;padding:12px 14px;background:var(--surface);border-radius:var(--radius-row);font-size:13px}
+.sim h4{margin:0 0 6px;font-size:13px;font-weight:600}
+.sim label{display:grid;grid-template-columns:104px minmax(0,1fr) 72px;gap:8px;align-items:center;min-height:36px}
+.sim label output{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.sim input[type=range]{width:100%;min-height:36px;accent-color:var(--accent);touch-action:pan-y}
+.sim .sres{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sim .sres div{padding:8px 12px;border-radius:var(--radius-row);background:var(--raised);border:1px solid var(--border)}
+.sim .sres b{font-variant-numeric:tabular-nums}
+.sim .sres .em{border-color:var(--accent)}
+@media (max-width:480px){.sim label{grid-template-columns:84px minmax(0,1fr) 60px}}
+@media (max-width:860px){.hsw{min-width:800px}}
 @media (prefers-reduced-motion:reduce){
   .bar i{transition:none}
   .shake{animation:none!important}
@@ -549,7 +571,7 @@ function fig(id){
   if(k&&DG[k]) h+='<img class="figimg" data-zoom="1" alt="도식" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(DG[k])+'">';
   var xs=DX[id]||[];
   for(var j=0;j<xs.length;j++){ var f='diagrams/'+xs[j]+'.svg';
-    h+='<div class="detail"><div class="cap">구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></div>'; }
+    h+='<div class="detail"><div class="cap">구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></div>'; }
   if(M3[id]) h+='<div class="detail m3"><div class="cap">3D 모형 <em>돌려 보며 이해하기</em></div><button class="btn" type="button" data-3d="'+M3[id][0]+'|'+M3[id][1]+'">3D로 보기</button></div>';
   if(IACT_OIL[id]) h+='<div class="detail"><div class="iact"><b>인터랙티브 도식</b><a href="interactive/oil-lubrication.html" target="_blank" rel="noopener">엔진 오일 윤활 · 온도 센서(부특성 저항) ▸</a></div></div>';
   if(IACT[id]) h+='<div class="detail"><div class="iact"><b>인터랙티브 도식</b><a href="interactive/disc-brake-gap.html" target="_blank" rel="noopener">디스크 브레이크 · 유격 ▸</a><a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></div>';
@@ -1241,7 +1263,7 @@ function ordView(){
     h+='<div class="row"><button class="btn pri grow" data-ocheck="1"'+(c.ans.length===c.it.s.length?'':' disabled')+'>확인</button></div>';
   } else {
     h+='<div class="res '+(c.ok?'ok':'no')+'">'+(c.ok?ICON.ok:ICON.no)+'<h3>'+(c.ok?'순서가 맞습니다':'순서가 다릅니다')+'</h3>'+(c.ok?'':'<div class="key">'+c.it.s.map(esc).join(' → ')+'</div>')+'</div>';
-    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[c.it.fig]||c.it.t)+' <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(c.it.t)+'" src="diagrams/'+c.it.fig+'.svg"></div></div></div>';
+    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[c.it.fig]||c.it.t)+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(c.it.t)+'" src="diagrams/'+c.it.fig+'.svg"></div></div></div>';
     h+='<div class="row"><button class="btn pri grow" data-onext="1">다음</button></div>';
   }
   return h+'</div><button class="link" data-quit>그만하기</button></div>';
@@ -1264,7 +1286,7 @@ function topicsView(){
   var h='<div class="col"><div class="greet"><div><h1>주제별 공부</h1><p>구조도를 먼저 보고 핵심을 읽은 뒤, 그 주제의 문제를 풉니다. '+Object.keys(DXT).length+'개 주제</p></div></div>';
   ['기관','섀시','전기'].forEach(function(a){
     h+='<section class="panel"><div class="panel-h"><h2>'+a+'</h2><span class="chip-n">'+by[a].length+'개 주제</span></div>'
-      +'<div class="detail"><div class="cap">'+a+' 한 장 요약 · 손그림 <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+a+' 한 장 요약 지도" src="maps/'+{'기관':'engine','섀시':'chassis','전기':'electric'}[a]+'.png"></div></div><div class="topics">';
+      +'<div class="detail"><div class="cap">'+a+' 한 장 요약 · 손그림 <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+a+' 한 장 요약 지도" src="maps/'+{'기관':'engine','섀시':'chassis','전기':'electric'}[a]+'.png"></div></div><div class="topics">';
     by[a].forEach(function(x){
       var m=0; x.ids.forEach(function(i){ var r=DB.p[i]; if(r&&r.b>=4) m++; });
       h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="width:'+(m/x.ids.length*100)+'%"></i></div></button>';
@@ -1284,7 +1306,7 @@ function topicsView(){
 function studyView(){
   var k=S.topic, ids=topicIds(k);
   var h='<div class="col narrow" style="padding-top:12px"><button class="link" data-v="topics" style="padding:0">‹ 주제 목록</button><h1 class="ttl" style="margin-top:12px">'+esc(DXT[k])+'</h1>';
-  h+='<div class="detail"><div class="cap">구조도 <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k])+'" src="diagrams/'+k+'.svg"></div></div>';
+  h+='<div class="detail"><div class="cap">구조도 <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k])+'" src="diagrams/'+k+'.svg"></div></div>';
   h+='<section class="panel"><div class="panel-h"><h2>핵심 정리</h2></div><ul class="points" id="pts"><li class="tip">불러오는 중…</li></ul></section>';
   h+='<div class="row"><button class="btn pri grow" data-tstart="1">이 주제 문제 풀기 ('+Math.min(10,ids.length)+'문제)</button></div></div>';
   getSvg(k).then(function(text){
@@ -1376,7 +1398,7 @@ function cmpView(){
   if(q.ans){
     var ok=q.ans===it.side;
     h+='<div class="res '+(ok?'ok':'no')+'">'+(ok?ICON.ok:ICON.no)+'<h3>'+(ok?'맞았습니다':'정답은 '+esc(p[it.side])+'입니다')+'</h3><div class="tip">'+esc(it.s)+' → '+esc(p[it.side])+'</div></div>';
-    if(!ok) h+=p.f.map(function(k){ return '<div class="detail"><div class="cap">구조도 · '+esc(DXT[k]||k)+' <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k]||k)+'" src="diagrams/'+k+'.svg"></div></div>'; }).join('');
+    if(!ok) h+=p.f.map(function(k){ return '<div class="detail"><div class="cap">구조도 · '+esc(DXT[k]||k)+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k]||k)+'" src="diagrams/'+k+'.svg"></div></div>'; }).join('');
     h+='<div class="row"><button class="btn pri grow" data-cnext="1">다음 <kbd>Enter</kbd></button></div>';
   }
   return h+'</div><button class="link" data-quit>그만하기</button></div>';
@@ -1440,7 +1462,7 @@ function calcView(){
     if(c.wrong.length) h+='<div class="tip" style="color:var(--negative)">아닙니다. 다시 생각해 보세요.</div>';
   } else {
     h+='<div class="res '+(c.mistakes?'fmt':'ok')+'">'+(c.mistakes?ICON.fmt:ICON.ok)+'<h3>'+(c.mistakes?'풀었지만 '+c.mistakes+'번 틀렸습니다':'한 번에 맞혔습니다')+'</h3><div class="key">'+esc(it.s[it.s.length-1][1][it.s[it.s.length-1][2]])+'</div></div>';
-    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[it.fig]||it.t)+' <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(it.t)+'" src="diagrams/'+it.fig+'.svg"></div></div></div>';
+    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[it.fig]||it.t)+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(it.t)+'" src="diagrams/'+it.fig+'.svg"></div></div></div>';
     h+='<div class="row"><button class="btn pri grow" data-knext="1">다음 <kbd>Enter</kbd></button></div>';
   }
   return h+'</div><button class="link" data-quit>그만하기</button></div>';
@@ -1457,6 +1479,126 @@ document.addEventListener('click',function(e){
   if(b.dataset.knext){ q.i++; if(q.i>=q.items.length){ xResult('calc',q.ok,q.items.length,q.miss); return; } q.cur=mkCalc(); render(); window.scrollTo(0,0); }
 });
 document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.done&&e.key==='Enter'){ var b=document.querySelector('[data-knext]'); if(b) b.click(); } });
+
+/* ===== 그림 위 부품 탭 설명 + 값 조절 슬라이더 ===== */
+(function(){
+  var HAY=null;
+  var norm=function(t){ return String(t).replace(/\([^)]*\)/g,'').replace(/[\s·\/\-,]/g,'').toLowerCase(); };
+  function hay(){ if(!HAY) HAY=D.map(function(r,i){ return {i:i,q:norm(r[3]),a:norm(r[4]),m:norm((r[6]||'')+' '+(EXP[i]||''))}; }); return HAY; }
+  var GLR={"블리더 스크류": "브레이크 계통에 들어간 공기를 빼는 나사. 풀면 공기와 브레이크액이 빠져나옵니다.", "유압 입구(호스)": "마스터 실린더에서 온 브레이크액이 캘리퍼로 들어오는 입구입니다.", "유압실(브레이크액)": "브레이크액 압력이 피스톤 뒤쪽에 작용하는 공간입니다. 압력이 오르면 피스톤을 밉니다.", "더스트 부트": "피스톤과 실린더 사이에 먼지·물이 들어가지 않게 막는 고무 덮개입니다.", "안쪽 패드(마찰재)": "피스톤이 직접 로터 쪽으로 밀어 주는 패드입니다.", "슬라이드 핀": "캘리퍼가 좌우로 미끄러지게 해 주는 핀입니다(플로팅 캘리퍼의 핵심).", "캘리퍼 브리지": "로터를 가로질러 피스톤 쪽 몸체와 바깥쪽 암을 이어 주는 부분입니다.", "바깥쪽 패드(마찰재)": "피스톤의 반력으로 캘리퍼가 움직이면서 로터를 바깥에서 조이는 패드입니다.", "백킹 플레이트": "마찰재를 붙여 잡아 주는 강철 판입니다.", "바깥쪽 암(핑거)": "캘리퍼에서 바깥쪽 패드를 로터로 밀어 주는 갈고리 모양 부분입니다.", "로터(벤틸레이티드)": "패드가 조이는 원판입니다. 안쪽에 공기가 지나는 통로가 있어 열을 식힙니다.", "휠 허브": "바퀴와 로터가 붙어 함께 도는 부분입니다.", "N₂ 고압": "드가르봉식 쇽업소버에서 프리 피스톤 아래에 채운 고압 질소가스입니다.", "고압 질소가스실": "오일과 가스를 프리 피스톤으로 나눠, 오일에 거품이 생기는 것(캐비테이션)을 막고 오일 부피 변화를 흡수합니다.", "상부 마운트 스터드": "쇽업소버 위쪽을 차체에 고정하는 연결부입니다.", "하부 마운트(아이)": "쇽업소버 아래쪽을 차축(로어 암) 쪽에 고정하는 고리 모양 연결부입니다.", "더스트 커버": "피스톤 로드와 오일 실을 먼지·물로부터 보호하는 덮개입니다.", "오일 실": "피스톤 로드 둘레에서 오일이 새지 않게 막는 실입니다.", "O링(기밀)": "가스실과 오일실이 섞이거나 새지 않게 밀봉하는 고무 링입니다.", "컴프레션 밸브": "쇽업소버가 줄어들(압축) 때 오일이 지나가며 저항(감쇠력)을 만드는 밸브입니다.", "리바운드 밸브": "쇽업소버가 늘어날(리바운드) 때 오일 흐름에 저항을 주는 밸브입니다.", "상부실(리바운드실)": "늘어날 때 오일이 눌리는 위쪽 오일실입니다.", "하부실(컴프레션실)": "줄어들 때 오일이 눌리는 아래쪽 오일실입니다.", "그로밋(고무 실)": "신호선이 나오는 쪽을 밀봉하는 고무입니다.", "대기(기준 공기) 유입": "지르코니아 소자 안쪽에 기준이 되는 대기가 들어오는 통로입니다. 안쪽 대기와 바깥쪽 배기의 산소 농도 차이로 전압이 생깁니다.", "세라믹 절연체": "신호선과 하우징 사이를 전기적으로 분리하는 절연체입니다.", "나사부(배기관 장착)": "센서를 배기관에 나사로 고정하는 부분입니다.", "보호 커버(이중)": "소자를 열과 충격으로부터 보호하면서 배기가스는 구멍으로 통과시키는 이중 커버입니다.", "백금 전극(외측)": "소자 표면에 입힌 백금 전극으로, 산소 반응을 돕고 전압을 꺼냅니다.", "히터 전원선(+)": "히터에 전원을 공급하는 선입니다. 히터는 센서를 빨리 활성화합니다.", "히터 접지선(−)": "히터 회로의 접지선입니다.", "스테인리스 외피": "소자와 내부 부품을 감싸 보호하는 금속 외피입니다.", "하우징(육각부)": "공구로 센서를 조이는 육각 부분입니다.", "가스켓(와셔)": "장착부에서 배기가스가 새지 않게 막는 와셔입니다.", "세라믹 분말 실": "소자와 하우징 사이를 밀봉하는 세라믹 분말입니다.", "드라이브 플레이트": "엔진 크랭크축의 회전을 토크 컨버터에 전달하는 얇은 판입니다.", "터빈 허브(스플라인)": "터빈의 회전을 변속기 입력축으로 전달하는 스플라인(홈) 부분입니다.", "파일럿 부": "토크 컨버터의 중심을 크랭크축 쪽에 맞춰 끼우는 돌기입니다.", "오일 순환 방향": "오일은 펌프(임펠러) → 터빈 → 스테이터 → 펌프 순서로 돕니다.", "펌프 허브(오일펌프 구동)": "컨버터 뒤쪽의 허브가 변속기 오일 펌프를 구동합니다.", "임펠러(펌프)": "엔진에 연결되어 같이 돌며 오일을 터빈 쪽으로 밀어내는 날개 바퀴입니다.", "CAN-H": "꼬인 두 선 중 High 선입니다. 두 선의 전압 차이로 신호를 전달해 잡음에 강합니다.", "CAN-L": "꼬인 두 선 중 Low 선입니다. CAN-H와 전압이 반대로 변합니다.", "연료 필터": "연료 속 이물질을 걸러 고압 펌프와 인젝터를 보호합니다.", "저압 라인": "탱크의 저압 펌프에서 고압 펌프까지 연료가 흐르는 라인입니다.", "오일 펌프": "엔진이 구동해 유압을 만들고, 동력 조향의 보조력을 위한 오일을 보냅니다.", "오일 리저버": "동력 조향 오일을 저장하는 탱크입니다.", "WTS (수온)": "냉각수 온도 센서입니다. 엔진 온도를 ECU에 입력합니다(입력 요소).", "점화 코일": "ECU의 명령으로 점화 플러그에 필요한 고전압을 만드는 출력 요소입니다.", "노드 A": "CAN 버스에 연결된 제어기(ECU) 하나입니다.", "노드 B": "CAN 버스에 연결된 또 다른 제어기(ECU)입니다. 동시에 보내면 ID가 작은 쪽이 우선합니다.", "펌프 모터": "ABS가 감압한 브레이크액을 마스터 실린더 쪽으로 되돌리는 펌프를 구동합니다.", "공기 탱크": "공기 압축기가 만든 압축공기를 저장해 두는 탱크입니다.", "에어클리너": "흡입 공기 속 먼지를 걸러 주는 필터입니다.", "디젤 엔진": "배기가스(NOx·PM)를 내보내는 곳입니다. 후처리 장치가 이를 줄입니다.", "오리피스 튜브": "CCOT 방식에서 팽창밸브 대신 쓰는 가는 관으로, 냉매를 감압해 증발기로 보냅니다.", "실외 열교환기": "냉방 때는 응축기, 히트펌프 난방 때는 열을 흡수하는 쪽으로 쓰입니다.", "실내 열교환기": "냉방 때는 증발기, 히트펌프 난방 때는 실내로 열을 내보내는 쪽으로 쓰입니다.", "저압 서비스 포트": "매니폴드 게이지의 파란 쪽(저압)을 연결하는 포트입니다.", "고압 서비스 포트": "매니폴드 게이지의 빨간 쪽(고압)을 연결하는 포트입니다.", "온수식": "엔진 냉각수의 열을 히터 코어로 보내 실내를 데웁니다.", "PTC 난방": "PTC 소자에 전기를 흘려 공기를 직접 가열하는 방식입니다.", "λ < 1": "실제 공기량이 이론 공기량보다 적은 농후 상태입니다.", "λ = 1": "이론공연비(가솔린 14.7:1) 상태입니다.", "λ > 1": "실제 공기량이 이론 공기량보다 많은 희박 상태입니다.", "87a": "코일이 꺼졌을 때 30번과 연결되는 접점입니다(릴레이 종류에 따라 있음).", "2CO + O₂ → 2CO₂": "일산화탄소(CO)가 산소와 만나 이산화탄소(CO₂)로 산화됩니다.", "HC + O₂ → H₂O + CO₂": "탄화수소(HC)가 산소와 만나 물과 이산화탄소로 산화됩니다.", "CO₂ · H₂O · N₂": "정화된 뒤 배출되는 성분입니다."};
+  var GLN=null;
+  function gloss(label){ if(!GLN){ GLN={}; Object.keys(GLR).forEach(function(k){ GLN[norm(k)]=GLR[k]; }); } return GLN[norm(label)]||''; }
+  function matches(raw){
+    var base=String(raw), cand=[base].concat(base.split(/[\/·,]/));
+    var parts=cand.map(norm).filter(function(p){ return p.length>=2 && !/^[0-9.~%℃°vV×÷=+→←↑↓]+$/.test(p); });
+    if(!parts.some(function(p){ return hay().some(function(h){ return h.a.indexOf(p)>=0||h.q.indexOf(p)>=0||h.m.indexOf(p)>=0; }); })){
+      parts=base.split(/[\s()\[\]=:→,]+/).map(norm).filter(function(p){ return p.length>=3 && !/^[0-9.~%℃°vV×÷=+→←↑↓a-z]+$/.test(p); });
+    }
+    if(!parts.length) return [];
+    var out=[];
+    hay().forEach(function(h){
+      var sc=0;
+      parts.forEach(function(p){ if(h.a.indexOf(p)>=0) sc=Math.max(sc,3); else if(h.q.indexOf(p)>=0) sc=Math.max(sc,2); else if(h.m.indexOf(p)>=0) sc=Math.max(sc,1); });
+      if(sc) out.push({i:h.i,s:sc});
+    });
+    out.sort(function(a,b){ return b.s-a.s||a.i-b.i; });
+    return out;
+  }
+  function textW(t,bold){ var w=0; for(var i=0;i<t.length;i++){ var c=t.charCodeAt(i); w+=c>0x2e80?12.4:(c===32?3.6:6.9); } return w*(bold?1.05:1); }
+  function boxes(svgText){
+    var doc=new DOMParser().parseFromString(svgText,'image/svg+xml'), root=doc.documentElement;
+    var vb=(root.getAttribute('viewBox')||'0 0 720 400').split(/\s+/).map(Number), res=[], seen={};
+    [].slice.call(doc.querySelectorAll('text')).forEach(function(el){
+      if(el.getAttribute('class')) return;
+      var t=(el.textContent||'').trim(); if(t.length<2||t.length>28) return;
+      var tx=0,ty=0,p=el.parentNode;
+      while(p&&p.nodeType===1&&p!==root){ var m=/translate\(\s*([-\d.]+)[ ,]+([-\d.]+)/.exec(p.getAttribute('transform')||''); if(m){ tx+=+m[1]; ty+=+m[2]; } p=p.parentNode; }
+      var x=(+el.getAttribute('x')||0)+tx, y=(+el.getAttribute('y')||0)+ty, an=el.getAttribute('text-anchor')||'start';
+      var bold=/700/.test(el.getAttribute('style')||''), w=textW(t,bold);
+      var left=an==='middle'?x-w/2:an==='end'?x-w:x;
+      var k=Math.round(left)+':'+Math.round(y); if(seen[k]) return; seen[k]=1;
+      res.push({t:t,l:left-3,tp:y-12,w:w+6,h:17});
+    });
+    return {vb:vb,b:res};
+  }
+  var esc2=function(x){ return esc(String(x)); };
+  function card(detail,label,list,gl){
+    var old=detail.querySelector('.hsc'); if(old) old.remove();
+    var c=document.createElement('div'); c.className='hsc'; c.setAttribute('role','region'); c.setAttribute('aria-label',label+' 관련 문제');
+    var h='<button class="hsx" type="button" aria-label="닫기">×</button><b>'+esc2(label)+'</b>'+(gl?'<div>'+esc2(gl)+'</div>':'')+(list.length?' <small>관련 문제 '+list.length+'개 중 '+Math.min(3,list.length)+'개</small>':'');
+    list.slice(0,3).forEach(function(m){
+      var r=D[m.i], exp=EXP[m.i]||r[6]||'';
+      h+='<div class="hsi"><div>'+esc2(r[3])+'</div><div><b>정답</b> '+esc2(String(r[4]).replace(/\n/g,' / '))+'</div>'+(exp?'<small>'+esc2(exp)+'</small>':'')+'</div>';
+    });
+    c.innerHTML=h; detail.appendChild(c);
+    return c;
+  }
+  /* ---- 값 조절 ---- */
+  var f2=function(n,d){ return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString(); };
+  var ss=function(t){ t=Math.min(1,Math.max(0,t)); return t*t*(3-2*t); };
+  var SIMS={
+    'pascal-pressure':{t:'힘과 지름을 바꿔 보기',c:[['F','힘 F',10,300,5,150,' N'],['d','지름 d',1,10,0.5,6,' cm']],f:function(v){ var A=3.14*v.d*v.d/4; return [['면적 A = π×d²÷4',f2(A,2)+' cm²'],['압력 P = F÷A',f2(v.F/A,2)+' N/cm²',1]]; }},
+    'series-parallel':{t:'전압과 저항을 바꿔 보기',c:[['V','전원 V',6,24,1,12,' V'],['r1','R₁',1,20,1,4,' Ω'],['r2','R₂',1,20,1,8,' Ω'],['r3','R₃',1,20,1,12,' Ω'],['rp','A점 병렬 합성',1,10,0.2,4.8,' Ω'],['rb','B점 직렬',0.2,5,0.2,1.2,' Ω']],f:function(v){ var R=v.r1+v.r2+v.r3, Rt=v.rp+v.rb, I2=v.V/Rt; return [['① 합성 R',f2(R,1)+' Ω'],['① 전류 I',f2(v.V/R,3)+' A',1],['② 합성 R',f2(Rt,1)+' Ω'],['② 전류 I',f2(I2,2)+' A'],['② A점 전압강하',f2(I2*v.rp,2)+' V',1]]; }},
+    'kirchhoff-node':{t:'전류를 바꿔 보기',c:[['a','I₁ (들어옴)',0,10,1,1,' A'],['b','I₃ (들어옴)',0,10,1,3,' A'],['c','I₄ (들어옴)',0,10,1,4,' A'],['d','I₂ (나감)',0,10,1,2,' A']],f:function(v){ var i5=v.a+v.b+v.c-v.d; return [['들어오는 합',(v.a+v.b+v.c)+' A'],['I₅ = 합 − I₂',i5+' A',1]]; }},
+    'relay-coil':{t:'전압과 전류를 바꿔 보기',c:[['V','코일 전압',6,24,1,12,' V'],['I','코일 전류',0.05,0.6,0.005,0.125,' A']],f:function(v){ return [['코일 저항 R = V÷I',f2(v.V/v.I,1)+' Ω',1]]; }},
+    'lux-calc':{t:'광도와 거리를 바꿔 보기',c:[['I','광도 I',2000,30000,1000,18000,' cd'],['d','거리 d',1,10,0.5,3,' m']],f:function(v){ return [['거리²',f2(v.d*v.d,2)+' m²'],['조도 E = I÷거리²',f2(v.I/(v.d*v.d),0)+' lx',1]]; }},
+    'brake-ratio':{t:'제동력과 중량을 바꿔 보기',c:[['l','뒤좌 제동력',50,400,5,150,' kgf'],['r','뒤우 제동력',50,400,5,120,' kgf'],['wf','전축중',300,1500,10,700,' kg'],['wr','후축중',300,1500,10,450,' kg']],f:function(v){ var x=(v.l+v.r)/(v.wf+v.wr)*100; return [['비율(계산값)',f2(x,3)+' %'],['소수 둘째 자리 버림',(Math.floor(x*10)/10).toFixed(1)+' %',1],['소수점 이하 버림',Math.floor(x)+' %']]; }},
+    'catalyst-temp':{t:'온도를 바꿔 보기',c:[['T','촉매 온도',0,900,10,350,' ℃']],f:function(v){ var T=v.T, s=T<300?'정화가 거의 안 됨':T<400?'활성 개시(정화 시작)':T<=800?'정화율 높음 · 수명 연장 구간':'너무 높음 → 촉매 열화 위험'; return [['상태',s,1]]; }},
+    'o2-sensor-types':{t:'혼합비(λ)를 바꿔 보기',c:[['L','공기과잉률 λ',0.9,1.1,0.005,0.95,'']],mark:true,f:function(v){ var s=ss((v.L-0.985)/0.03), z=0.9-0.8*s, ti=5*s, st=v.L<0.985?'농후(연료 많음)':v.L>1.015?'희박(공기 많음)':'이론공연비 부근 — 출력 급변'; return [['혼합 상태',st],['지르코니아 출력',f2(z,2)+' V',1],['티타니아 출력',f2(ti,2)+' V',1]]; }}
+  };
+  function sim(detail,key,wrap){
+    var S0=SIMS[key]; if(!S0||detail.querySelector('.sim')) return;
+    var box=document.createElement('div'); box.className='sim';
+    var vals={}, h='<h4>'+S0.t+'</h4>';
+    S0.c.forEach(function(c){ vals[c[0]]=c[5]; h+='<label><span>'+c[1]+'</span><input type="range" data-k="'+c[0]+'" min="'+c[2]+'" max="'+c[3]+'" step="'+c[4]+'" value="'+c[5]+'" aria-label="'+c[1]+'"><output>'+c[5]+c[6]+'</output></label>'; });
+    h+='<div class="sres" aria-live="polite"></div>';
+    box.innerHTML=h; detail.appendChild(box);
+    var res=box.querySelector('.sres'), mk=null;
+    if(S0.mark){ mk=[document.createElement('span'),document.createElement('span')]; mk.forEach(function(m){ m.className='hsm'; wrap.appendChild(m); }); }
+    function upd(){
+      res.innerHTML=S0.f(vals).map(function(r){ return '<div'+(r[2]?' class="em"':'')+'>'+r[0]+' <b>'+r[1]+'</b></div>'; }).join('');
+      if(mk){ var L=vals.L, s=ss((L-0.985)/0.03), hi=318, lo=400;
+        var zx=96+(L-0.9)/0.2*224, tx=440+(L-0.9)/0.2*230;
+        var zy=lo-(0.9-0.8*s-0.1)/0.8*(lo-hi), ty=lo-(5*s)/5*(lo-hi);
+        // 곡선(색 반전) 기준: 지르코니아는 높은 쪽이 위, 티타니아는 낮은 쪽이 아래
+        var pos=[[zx,zy],[tx,ty]];
+        mk.forEach(function(m,i){ m.style.left=(pos[i][0]/720*100)+'%'; m.style.top=(pos[i][1]/540*100)+'%'; });
+      }
+    }
+    box.addEventListener('input',function(e){ var k=e.target.getAttribute('data-k'); if(!k) return; vals[k]=+e.target.value; var c=S0.c.filter(function(x){ return x[0]===k; })[0]; e.target.nextElementSibling.textContent=vals[k]+c[6]; upd(); });
+    upd();
+  }
+  function setup(img){
+    if(img.getAttribute('data-hs')) return; img.setAttribute('data-hs','1');
+    var m=/diagrams\/([a-z0-9-]+)\.svg/.exec(img.getAttribute('src')||''); if(!m) return; var key=m[1];
+    var detail=img.closest('.detail'); if(!detail) return;
+    getSvg(key).then(function(text){
+      if(!document.body.contains(img)) return;
+      var wrap=document.createElement('div'); wrap.className='hsw'; img.parentNode.insertBefore(wrap,img); wrap.appendChild(img);
+      var g=boxes(text), cache={};
+      g.b.forEach(function(b){
+        var list=matches(b.t), gl=gloss(b.t); if(!list.length&&!gl) return;
+        var btn=document.createElement('button'); btn.type='button'; btn.className='hsb'; btn.setAttribute('aria-label',b.t+' 설명 보기');
+        btn.style.left=(b.l/g.vb[2]*100)+'%'; btn.style.top=(b.tp/g.vb[3]*100)+'%'; btn.style.width=(b.w/g.vb[2]*100)+'%'; btn.style.height=(b.h/g.vb[3]*100)+'%';
+        btn.addEventListener('click',function(e){
+          e.stopPropagation();
+          var was=btn.classList.contains('on');
+          [].slice.call(wrap.querySelectorAll('.hsb.on')).forEach(function(x){ x.classList.remove('on'); });
+          var old=detail.querySelector('.hsc'); if(old) old.remove();
+          if(was) return;
+          btn.classList.add('on'); card(detail,b.t,list,gl);
+        });
+        wrap.appendChild(btn);
+      });
+      detail.addEventListener('click',function(e){ var x=e.target.closest('.hsx'); if(x){ var c=x.parentNode; c.remove(); [].slice.call(wrap.querySelectorAll('.hsb.on')).forEach(function(b){ b.classList.remove('on'); }); } });
+      sim(detail,key,wrap);
+    }).catch(function(){});
+  }
+  var pending=0;
+  function scan(){ pending=0; [].slice.call(document.querySelectorAll('img.figwide')).forEach(setup); }
+  new MutationObserver(function(){ if(!pending) pending=setTimeout(scan,40); }).observe(document.body,{childList:true,subtree:true});
+  scan();
+})();
 
 render();
 </script>
