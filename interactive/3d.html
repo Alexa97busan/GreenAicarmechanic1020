@@ -1,13 +1,15 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><script>try{var __t=localStorage.getItem("jeongbi-theme");if(__t==="light"||__t==="dark")document.documentElement.setAttribute("data-theme",__t);}catch(e){}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>3D 구조 보기</title>
 <meta name="color-scheme" content="light dark">
 <style>
 :root{--bg:#f4f4f1;--panel:#e9e9e4;--text:#1b1d1c;--muted:#5d625f;--accent:#1b6e66;--line:#cfcfc8;--ease:cubic-bezier(0.23,1,0.32,1)}
-@media (prefers-color-scheme:dark){:root{--bg:#121413;--panel:#1c1f1d;--text:#ecefed;--muted:#9aa19d;--accent:#5fc3b8;--line:#2f3532}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121413;--panel:#1c1f1d;--text:#ecefed;--muted:#9aa19d;--accent:#5fc3b8;--line:#2f3532}}
+:root[data-theme="dark"]{--bg:#121413;--panel:#1c1f1d;--text:#ecefed;--muted:#9aa19d;--accent:#5fc3b8;--line:#2f3532}
+:root[data-theme="light"]{--bg:#f4f4f1;--panel:#e9e9e4;--text:#1b1d1c;--muted:#5d625f;--accent:#1b6e66;--line:#cfcfc8}
 *{box-sizing:border-box}
 html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;word-break:keep-all;overflow-wrap:break-word;padding:0 16px calc(20px + env(safe-area-inset-bottom,0px))}

@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<!doctype html><html lang="ko"><head><script>try{var __t=localStorage.getItem("jeongbi-theme");if(__t==="light"||__t==="dark")document.documentElement.setAttribute("data-theme",__t);}catch(e){}</script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>정비 기출 노트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
@@ -382,6 +382,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .hschips button:active,.cs-x:active{transform:scale(.97)}
 @media (hover:hover) and (pointer:fine){.pcard:hover,.atile:hover{border-color:var(--control)}}
 .hsc{animation:rise .16s var(--ease)}
+/* 테마 전환 */
+.theme-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;font:inherit;font-size:13px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:var(--radius-control);cursor:pointer;transition:transform .1s var(--ease),background-color .15s var(--ease)}
+.theme-btn svg{width:18px;height:18px;flex:0 0 auto}
+.theme-btn:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.theme-btn:hover{background:var(--active);color:var(--text)}}
+@media (max-width:480px){.theme-btn span{display:none}.theme-btn{padding:0 10px}}
 /* 그림 위 부품 탭 설명 · 값 조절 */
 .hsw{position:relative;width:100%;min-width:640px}
 .hsw .figwide{min-width:0}
@@ -428,6 +434,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
     <button data-v="stats" aria-current="false">기록</button>
   </nav>
   <span class="sub" id="today"></span>
+  <button id="theme" class="theme-btn" type="button" aria-label="화면 테마: 자동. 눌러서 바꾸기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span id="theme-l">자동</span></button>
   <span id="sr" class="sr" role="status" aria-live="polite"></span>
 </header>
 <main id="app" tabindex="-1"></main>
@@ -1851,6 +1858,34 @@ function announce(msg){ var el=document.getElementById('sr'); if(!el) return; el
       DB=o.data; if(!DB.p) DB.p={}; DB.streak=+DB.streak||0; DB.last=+DB.last||0; DB.days=+DB.days||0; save(); render(); msg('기록 '+inc+'문제를 가져왔습니다.');
     };
     rd.readAsText(e.target.files[0]);
+  });
+})();
+
+/* ===== 테마 전환 (자동 · 라이트 · 다크) ===== */
+(function(){
+  var KEYT='jeongbi-theme', ORDER=['auto','light','dark'], NAME={auto:'자동',light:'라이트',dark:'다크'};
+  function cur(){ try{ var t=localStorage.getItem(KEYT); return t==='light'||t==='dark'?t:'auto'; }catch(e){ return 'auto'; } }
+  function metas(t){
+    var dark=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
+    var m=document.getElementById('tc'); if(!m){ m=document.createElement('meta'); m.name='theme-color'; m.id='tc'; document.head.appendChild(m); }
+    m.content=dark?'#0f1110':'#ffffff';
+    [].slice.call(document.querySelectorAll('meta[name="theme-color"][media]')).forEach(function(x){ x.remove(); });
+  }
+  function apply(t,announceIt){
+    var r=document.documentElement; if(t==='auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme',t);
+    metas(t);
+    var b=document.getElementById('theme'), l=document.getElementById('theme-l');
+    if(l) l.textContent=NAME[t];
+    if(b) b.setAttribute('aria-label','화면 테마: '+NAME[t]+'. 눌러서 바꾸기');
+    if(announceIt) announce('화면 테마를 '+NAME[t]+'(으)로 바꿨습니다.');
+  }
+  apply(cur(),false);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener&&matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){ if(cur()==='auto') metas('auto'); });
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('#theme'); if(!b) return;
+    var n=ORDER[(ORDER.indexOf(cur())+1)%3];
+    try{ if(n==='auto') localStorage.removeItem(KEYT); else localStorage.setItem(KEYT,n); }catch(x){}
+    apply(n,true);
   });
 })();
 
