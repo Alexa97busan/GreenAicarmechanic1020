@@ -73,21 +73,36 @@ input[type=date]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .hs-ctl button{width:44px;height:44px;border-radius:50%;border:1px solid var(--control);background:transparent;color:var(--text);font-size:24px;line-height:1;cursor:pointer;transition:transform .12s var(--ease)}
 .hs-ctl button:active{transform:scale(.94)}
 .gal-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.gal-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.gal-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px 12px}
 .gt{padding:0;border:0;background:var(--surface);border-radius:var(--radius-row);overflow:hidden;cursor:pointer;aspect-ratio:1/1;transition:transform .12s var(--ease)}
 .gt:active{transform:scale(.97)}
 .gt img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.9)}
-.lbx{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);padding:56px 64px}
-.lbx.on{display:flex}
-.lbx img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--radius-row);touch-action:pan-y;user-select:none}
-.lbx button{position:absolute;color:#fff;background:rgba(255,255,255,.12);border:0;cursor:pointer;font-size:24px;line-height:1;border-radius:50%;width:48px;height:48px}
-.lbx .lbx-x{top:12px;right:12px;width:auto;border-radius:var(--radius-control);padding:0 18px;font-size:14px;height:44px}
-.lbx .lbx-n{top:50%;right:8px;transform:translateY(-50%)}
-.lbx .lbx-p{right:auto;left:8px}
-.lbx-c{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:#fff;font-size:14px}
-@media (max-width:560px){.gal-g{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.lbx{padding:56px 8px}.lbx .lbx-n{top:auto;bottom:8px;transform:none}}
 @media (prefers-reduced-motion:reduce){.hero-p img{transition:none}}
 @media print{.gal,.hs-ctl{display:none}}
+.gw{margin:0;position:relative;display:flex;flex-direction:column;gap:8px;min-width:0}
+.gw .gt{width:100%}
+.gw figcaption{font-size:13px;line-height:1.5;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.gf{position:absolute;top:8px;right:8px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s var(--ease),background-color .15s var(--ease)}
+.gf .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.gf[aria-pressed=true]{background:var(--accent)}
+.gf[aria-pressed=true] .ic{fill:currentColor}
+.gf:active{transform:scale(.92)}
+.lbx{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.94);color:#fff}
+.lbx.on{display:block}
+.lbx-bar{position:absolute;top:0;left:0;right:0;display:flex;gap:8px;padding:10px 12px;align-items:center;z-index:2;flex-wrap:wrap}
+.lbx-bar button{min-width:44px;height:44px;padding:0 14px;border-radius:var(--radius-control);border:0;background:rgba(255,255,255,.14);color:#fff;font-size:16px;cursor:pointer;transition:transform .12s var(--ease)}
+.lbx-bar button:active{transform:scale(.95)}
+.lbx-bar button[aria-pressed=true]{background:#fff;color:#000}
+.lbx-bar .lbx-x{margin-left:auto;font-size:14px}
+.lbx-s{position:absolute;inset:64px 72px 112px;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
+.lbx-s img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--radius-row);user-select:none;-webkit-user-select:none;transform-origin:center;will-change:transform}
+.lbx-n{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:24px;line-height:1;cursor:pointer;z-index:2}
+.lbx-p{right:auto;left:12px}
+.lbx-cap{position:absolute;left:0;right:0;bottom:0;padding:14px 20px 18px;background:rgba(0,0,0,.72);display:flex;flex-direction:column;gap:4px;text-align:center;font-size:14px;line-height:1.55}
+.lbx-cap b{font-size:16px;font-weight:600}
+@media (max-width:560px){.gal-g{grid-template-columns:repeat(2,minmax(0,1fr))}.lbx-s{inset:64px 8px 132px}.lbx-n{width:40px;height:40px;background:rgba(255,255,255,.2)}.lbx-n{right:6px}.lbx-p{left:6px;right:auto}}
+@media (prefers-reduced-motion:reduce){.gf,.lbx-bar button{transition:none}}
+@media print{.lbx{display:none!important}}
 </style>
 <title>정비 기출 노트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -911,19 +926,39 @@ var AREAS={'기관':['area-engine','삼원촉매 · 디젤 · 센서 · 배출�
 function areaTiles(cnt,label){
   return '<div class="areas pick" role="group" aria-label="영역 고르기">'+['기관','섀시','전기'].map(function(a){ return '<button class="atile" type="button" data-a="'+a+'" data-goarea="'+a+'"><img src="photos/'+AREAS[a][0]+'.jpg" alt="" loading="eager"><div><b>'+a+' · '+cnt[a]+label+'</b><span>'+AREAS[a][1]+'</span></div></button>'; }).join('')+'</div>';
 }
-var HCON=[1, 3, 5, 13, 14, 17, 19, 24, 25, 31, 33, 34, 36, 39, 40, 41, 42, 50, 58, 59, 63, 64, 65, 67, 73, 77, 78, 79, 82, 84, 86];
-function hcls(i){ return HCON.indexOf(i)>-1?' hs-contain':''; }
-var HERO=[1, 2, 3, 5, 7, 10, 11, 13, 14, 16, 17, 18, 19, 23, 24, 25, 26, 31, 33, 34, 35, 36, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 52, 53, 56, 58, 59, 60, 63, 64, 65, 67, 69, 70, 72, 73, 77, 78, 79, 82, 84, 86], NPH=89;
+var GAL=[["art", "파란 배경의 소형 컨셉카 일러스트. 낮고 넓은 차체와 빨간 포인트가 특징입니다.", 1.0], ["f1", "위에서 내려다본 포뮬러 1 머신. 좁은 차체 양옆에 바퀴가 그대로 드러나 있습니다.", 0.56], ["car", "은색 중형 세단 정면. 둥근 헤드램프와 큰 그릴이 눈에 띄는 승용차입니다.", 1.5], ["poster", "랜치아 스트라토스 랠리카 포스터. 짧은 차체와 전면 보조등이 특징입니다.", 0.67], ["poster", "르망 1994 포스터. 직선 구간을 달리는 프로토타입 레이스카들이 그려져 있습니다.", 0.75], ["f1", "푸른 포뮬러 1 머신을 위에서 본 모습. 앞뒤 윙과 노출된 서스펜션 암이 보입니다.", 0.6], ["poster", "닛산 NISMO 레이싱카 포스터. 후원사 로고로 가득한 GT 카입니다.", 0.71], ["car", "금빛 세단이 속도감 있게 달리는 광고 사진. 배경을 흐리게 해 주행감을 살렸습니다.", 1.07], ["people", "붉은 레이싱 슈트의 드라이버가 말 문양의 노란 깃발을 펼쳐 든 모습입니다.", 1.04], ["art", "컨셉카 스케치. 차체의 곡면과 비율을 연필 선으로 잡은 디자인 단계의 그림입니다.", 1.33], ["people", "검은 소형차 옆에 노란 슈트를 입은 사람이 서 있는 서킷 사진입니다.", 1.51], ["f1", "경기 후 머신 위에서 포즈를 취한 드라이버. 붉은 차와 푸른 차가 나란히 있습니다.", 1.51], ["people", "타이어 옆에 쪼그려 앉아 상태를 살피는 랠리 드라이버. 타이어 마모와 공기압 점검은 섀시 공부와 이어집니다.", 0.67], ["car", "붉은 벽돌 건물 앞에 세워 둔 회색 해치백 사진입니다.", 0.7], ["poster", "푸른 스포츠 세단이 질주하는 일본어 광고 포스터입니다.", 0.8], ["art", "SUV 컨셉 디자인 스케치. 후면 램프와 지붕선을 단순한 선으로 표현했습니다.", 2.0], ["car", "BMW 세단 정면 주행 사진. 두 갈래 그릴과 네 개의 헤드램프가 보입니다.", 1.34], ["race", "푸른 GT 레이싱카 사진을 모아 만든 콜라주 포스터입니다.", 0.56], ["car", "전시장에 세워 둔 1980년대풍 세단의 뒷모습. 각진 차체가 특징입니다.", 1.4], ["f1", "1980년대 포뮬러 머신을 위에서 본 사진. 지금보다 작은 윙과 가는 타이어가 보입니다.", 0.65], ["poster", "일본 잡지의 스바루 임프레자 WRX STi 튜닝 광고. 빨강, 파랑 차체가 나란히 실려 있습니다.", 0.73], ["f1", "흑백으로 처리한 서킷 위를 푸른 포뮬러 머신이 달리는 합성 이미지입니다.", 1.43], ["poster", "파리 거리 풍경 속에 작은 레이스카를 넣은 광고 이미지. 도시와 레이싱을 대비시켰습니다.", 1.42], ["car", "은색 BMW 세단 측면 사진. 긴 보닛과 낮은 지붕선이 특징입니다.", 1.32], ["poster", "스카이라인 광고 포스터. 푸른 빛줄기와 인물 얼굴을 겹친 디자인입니다.", 0.8], ["people", "파란 레이싱 슈트의 랠리 드라이버가 헬멧을 들고 푸른 랠리카 앞에 선 사진입니다.", 0.82], ["car", "은색 소형 해치백 측면. 넓은 휀더와 큰 휠이 눈에 띕니다.", 1.33], ["f1", "코너를 도는 푸른 포뮬러 머신. 길게 찍어 속도감을 표현했습니다.", 0.56], ["poster", "흰 차체에 후원사 로고가 가득한 랠리카 광고입니다.", 0.75], ["people", "푸른색과 노란색 레이싱 슈트의 드라이버가 몸을 낮춘 오려낸 이미지입니다.", 1.78], ["poster", "초록·빨강·흰색 랜치아 랠리카 포스터. 위에서 본 차체에 번호 539가 보입니다.", 0.6], ["poster", "스바루 임프레자 STi 포스터. 푸른 차체와 금색 휠이 대비됩니다.", 0.7], ["people", "바레인 그랑프리 시상대의 두 드라이버. 붉은 슈트와 푸른 슈트가 대비됩니다.", 1.78], ["art", "푸른 쿠페를 위에서 본 컨셉 일러스트. 흰 줄무늬가 보닛을 따라 나 있습니다.", 0.81], ["car", "짙은 청색 스포츠카가 산길을 달리는 모습을 위에서 담은 사진입니다.", 0.86], ["f1", "붉은 광장 앞 도심 코스를 달리는 포뮬러 머신입니다.", 1.0], ["f1", "푸른 포뮬러 머신의 노즈와 앞바퀴 클로즈업. 두꺼운 슬릭 타이어가 보입니다.", 0.75], ["poster", "소닉 더 헤지혹 일본어 포스터. 푸른 캐릭터가 중심입니다.", 0.67], ["car", "해안 도로 옆에 세운 검은 세단 사진입니다.", 1.64], ["f1", "검은 클래식 포뮬러 머신이 코너를 도는 장면. 번호 12가 보입니다.", 0.68], ["poster", "Renault R25 포스터. 푸른 머신 사진과 큰 글씨로 디자인했습니다.", 0.71], ["people", "머신 위에서 승리를 알리는 드라이버와 팀원들입니다.", 0.56], ["f1", "노란 클래식 머신 위에서 헬멧을 들어 올린 인물 사진입니다.", 0.56], ["art", "랜치아 스트라토스를 흰 배경에 그린 스케치. 초록·흰색·빨강 줄무늬가 보입니다.", 1.6], ["f1", "붉은 머신의 조종석을 위에서 본 모습. 안전벨트와 계기류가 보입니다.", 0.66], ["race", "붉은 광장 앞에서 타이어 연기를 내며 도는 레이스카입니다.", 1.5], ["car", "은색 쿠페 광고 사진. 노을빛 하늘과 낮은 차체가 어울립니다.", 1.2], ["car", "르노 승용차 실내. 운전대, 센터 모니터, 수동 변속기가 보입니다.", 1.33], ["race", "푸른 GT 레이싱카 옆에 선 두 드라이버. 커다란 리어 윙이 특징입니다.", 1.49], ["f1", "검은색과 붉은색 클래식 포뮬러 머신 두 대를 위에서 본 사진입니다.", 1.01], ["people", "붉은 스포츠카 옆에서 위를 올려다보는 사람의 사진입니다.", 0.81], ["poster", "Renault R25 사양표가 들어간 흰 톤 포스터입니다.", 0.71], ["car", "숲길을 달리는 붉은 해치백 사진입니다.", 1.33], ["car", "은색 BMW 세단이 빠르게 달리는 사진. 흐린 배경이 속도감을 줍니다.", 1.36], ["poster", "후지 월드 스포츠카 챔피언십 포스터. 닛산 그룹 C 레이스카 정면이 보입니다.", 0.71], ["poster", "\"Fernando is faster than you\" 포스터. 푸른 드라이버 사진을 겹쳐 디자인했습니다.", 0.75], ["car", "산을 배경으로 한 은색 세단의 뒷모습입니다.", 1.51], ["poster", "도시를 배경으로 한 레이싱 게임 광고. 신호와 경고 표지가 그려져 있습니다.", 0.72], ["f1", "초록색 머신을 위에서 본 사진. 흰 선을 따라 달립니다.", 0.67], ["f1", "초록 머신의 조종석을 위에서 가까이 본 사진. 후원사 로고가 보입니다.", 0.56], ["car", "자갈길에 세운 붉은 왜건 사진입니다.", 1.33], ["poster", "물가 부두를 달리는 푸른 포뮬러 머신 광고 이미지입니다.", 1.0], ["poster", "내구 레이스 차량이 줄지어 달리는 일본어 포스터입니다.", 0.56], ["art", "알핀 컨셉카 일러스트. 파란 차체와 노란 포인트가 정면에서 보입니다.", 1.0], ["race", "머신을 기다리며 정렬한 피트 스톱 크루의 모습입니다.", 0.62], ["art", "도약하는 푸른 포뮬러 머신을 그린 일러스트입니다.", 1.47], ["art", "랜치아 스트라토스를 잉크로 그린 스케치입니다.", 1.0], ["race", "스페인 국기를 흔드는 관중석 앞을 지나는 푸른 머신입니다.", 0.67], ["art", "일본 만화 표지 일러스트. 푸른 레이싱 슈트의 인물과 숫자 21이 보입니다.", 0.69], ["car", "은색 세단 정면 사진. 일본 번호판이 보입니다.", 1.49], ["car", "버건디색 쿠페 정면. 낮게 깔린 헤드램프가 특징입니다.", 1.23], ["poster", "일본 F1 잡지 표지. 레이싱 슈트를 입은 드라이버 얼굴이 크게 실렸습니다.", 0.75], ["race", "전복된 랠리카 위에 올라선 드라이버. 사고 후의 모습입니다.", 1.06], ["poster", "스바루 임프레자 일러스트 포스터. 비포장 질주를 단순한 색으로 표현했습니다.", 0.73], ["race", "머신을 둘러싼 카메라와 취재진. 푸른 팀복이 보입니다.", 0.61], ["poster", "일본 스페셜 GT 컵 포스터. 여러 대의 GT 카가 모여 있습니다.", 0.69], ["race", "안개 낀 서킷에서 출발하는 머신들. 뒤로 광고판이 보입니다.", 0.8], ["people", "붉은 슈트와 푸른 슈트의 두 드라이버가 웃으며 이야기하는 장면입니다.", 1.01], ["f1", "흰색 클래식 머신을 위에서 본 사진. 후원사 로고가 보입니다.", 0.66], ["car", "은색 세단 정면 사진. 가는 헤드램프와 큰 그릴이 특징입니다.", 0.77], ["poster", "노란 톤으로 디자인한 Renault R25 포스터입니다.", 0.71], ["poster", "일본 자동차 잡지 표지. 신형 왜건 시승 특집입니다.", 0.73], ["people", "붉은 스포츠카 위에 걸터앉은 인물 사진입니다.", 0.81], ["poster", "일본어 스포츠 쿠페 카탈로그. 사양표와 은색 차체가 실려 있습니다.", 0.71], ["poster", "알론소 포스터. 번호 14와 헬멧을 쓴 드라이버를 크게 배치했습니다.", 0.71], ["people", "붉은 머신 옆에 선 드라이버의 사진입니다.", 0.5], ["car", "잔디밭에 세운 붉은 세단. 뒤로 요트가 보입니다.", 0.91], ["poster", "소닉이 윌리엄스 머신 옆에 선 홍보 이미지입니다.", 0.8], ["poster", "콰트로 그룹 B 포스터. 랠리카 두 대와 굵은 글씨가 어울립니다.", 0.56]];
+var NPH=GAL.length;
+var GTAGS=[['all','전체'],['car','승용차'],['f1','포뮬러'],['race','레이싱·랠리'],['people','인물'],['poster','포스터·광고'],['art','일러스트']];
+var HERO0=[1, 2, 3, 5, 7, 10, 11, 13, 14, 16, 17, 18, 19, 23, 24, 25, 26, 31, 33, 34, 35, 36, 38, 39, 40, 41, 42, 43, 46, 47, 48, 49, 50, 52, 53, 56, 58, 59, 60, 63, 64, 65, 67, 69, 70, 72, 73, 77, 78, 79, 82, 84, 86];
 function pad(n){ return (n<10?'0':'')+n; }
-S.hi=Math.floor(Math.random()*HERO.length);
+function gfavs(){ return Object.keys(DB.gf||{}).map(Number).filter(function(i){ return i>=0&&i<NPH; }); }
+function hcon(i){ var g=GAL[i]; return g[0]==='poster'||g[0]==='art'||g[0]==='people'||g[2]<0.95; }
+function HP(){ var f=gfavs(); return (DB.gh&&f.length)?f:HERO0; }
+function hcls(i){ return hcon(i)?' hs-contain':''; }
+S.hi=Math.floor(Math.random()*HERO0.length);
+function galList(){
+  var t=S.galTag||'all', out=[];
+  for(var i=0;i<NPH;i++){ if(t==='all'||(t==='fav'?(DB.gf&&DB.gf[i]):GAL[i][0]===t)) out.push(i); }
+  return out;
+}
 function galleryHTML(){
-  var n=S.galAll?NPH:24, h='<section class="sect gal"><div class="gal-h"><h2 class="sech">사진 갤러리</h2><span class="chip-n">'+NPH+'장 · 눌러서 크게 보기</span></div><div class="gal-g">';
-  for(var i=0;i<n;i++) h+='<button class="gt" type="button" data-gi="'+i+'" aria-label="사진 '+(i+1)+' 크게 보기"><img src="photos/g/'+pad(i)+'.jpg" alt="" loading="lazy"></button>';
-  h+='</div>'+(S.galAll?'':'<div class="row"><button class="btn grow" type="button" data-galmore="1">나머지 '+(NPH-24)+'장 더 보기</button></div>');
+  var list=galList(), n=S.galAll?list.length:Math.min(24,list.length), nf=gfavs().length, t=S.galTag||'all';
+  var h='<section class="sect gal"><div class="gal-h"><h2 class="sech">사진 갤러리</h2><span class="chip-n">'+list.length+'장 · 눌러서 크게 보기</span></div>';
+  h+='<div class="chips" role="group" aria-label="사진 분류">'+GTAGS.map(function(x){ return '<button class="chip" type="button" data-gtag="'+x[0]+'" aria-pressed="'+(t===x[0])+'">'+x[1]+'</button>'; }).join('')+'<button class="chip" type="button" data-gtag="fav" aria-pressed="'+(t==='fav')+'">즐겨찾기 '+nf+'</button></div>';
+  if(nf) h+='<div class="chips"><button class="chip" type="button" data-gh="1" aria-pressed="'+!!DB.gh+'">대표 사진에 즐겨찾기만 쓰기</button></div>';
+  if(!list.length) h+='<div class="dashed">'+(t==='fav'?'아직 즐겨찾기가 없습니다. 사진 오른쪽 위의 별을 눌러 담아 보세요.':'이 분류의 사진이 없습니다.')+'</div>';
+  else {
+    h+='<div class="gal-g">';
+    for(var k=0;k<n;k++){ var i=list[k], on=!!(DB.gf&&DB.gf[i]);
+      h+='<figure class="gw"><button class="gt" type="button" data-gi="'+i+'" aria-label="사진 크게 보기: '+esc(GAL[i][1])+'"><img src="photos/g/'+pad(i)+'.jpg" alt="" loading="lazy"></button><button class="gf" type="button" data-gf="'+i+'" aria-pressed="'+on+'" aria-label="즐겨찾기">'+STARSVG+'</button><figcaption>'+esc(GAL[i][1])+'</figcaption></figure>';
+    }
+    h+='</div>'+(n<list.length?'<div class="row"><button class="btn grow" type="button" data-galmore="1">나머지 '+(list.length-n)+'장 더 보기</button></div>':'');
+  }
   return h+'</section>';
 }
 function heroBlock(title,sub,extra,actions){
-  return '<section class="hero2"><div class="hero-t"><h1>'+title+'</h1><p>'+sub+'</p>'+(extra||'')+'<div class="hero-a">'+actions+'</div></div><div class="hero-p" data-hero><img id="hs" class="'+hcls(HERO[S.hi]).trim()+'" src="photos/g/'+pad(HERO[S.hi])+'.jpg" alt="자동차 사진. 누르면 크게 보기" loading="eager" tabindex="0" role="button"><div class="hs-ctl"><button type="button" data-hs="-1" aria-label="이전 사진">‹</button><span id="hs-n" aria-live="off">'+(S.hi+1)+' / '+HERO.length+'</span><button type="button" data-hs="1" aria-label="다음 사진">›</button></div></div></section>';
+  if(S.hi>=HP().length) S.hi=0;
+  return '<section class="hero2"><div class="hero-t"><h1>'+title+'</h1><p>'+sub+'</p>'+(extra||'')+'<div class="hero-a">'+actions+'</div></div><div class="hero-p" data-hero><img id="hs" class="'+hcls(HP()[S.hi]).trim()+'" src="photos/g/'+pad(HP()[S.hi])+'.jpg" alt="자동차 사진. 누르면 크게 보기" loading="eager" tabindex="0" role="button"><div class="hs-ctl"><button type="button" data-hs="-1" aria-label="이전 사진">‹</button><span id="hs-n" aria-live="off">'+(S.hi+1)+' / '+HP().length+'</span><button type="button" data-hs="1" aria-label="다음 사진">›</button></div></div></section>';
 }
 function banner(f){ return '<div class="banner"><img src="photos/'+f+'.jpg" alt="" loading="lazy"></div>'; }
 document.addEventListener('click',function(e){ var b=e.target.closest('[data-goarea]'); if(!b) return; S.sarea=b.getAttribute('data-goarea'); S.view='topics'; S.reset=false; render(); window.scrollTo(0,0); });
@@ -2029,6 +2064,7 @@ function dbInit(){
   if(!isO(DB.g)) DB.g={}; if(typeof DB.g.exam!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(DB.g.exam)) DB.g.exam='';
   DB.g.daily=[10,20,30,50].indexOf(+DB.g.daily)>-1?+DB.g.daily:20;
   if(!isO(DB.tc)) DB.tc={d:0,n:0}; DB.tc.d=+DB.tc.d||0; DB.tc.n=+DB.tc.n||0;
+  if(!isO(DB.gf)) DB.gf={}; Object.keys(DB.gf).forEach(function(k){ if(!(+k>=0&&+k<89)) delete DB.gf[k]; else DB.gf[k]=1; }); DB.gh=!!DB.gh;
   if(!Array.isArray(DB.ms)) DB.ms=[];
   DB.ms=DB.ms.filter(function(x){ return x&&isFinite(x.t)&&isFinite(x.s); }).slice(-30);
 }
@@ -2217,60 +2253,130 @@ function cheatView(){
 }
 
 
-/* ===== 홈 사진: 슬라이드 · 갤러리 · 크게 보기 ===== */
+/* ===== 홈 사진: 슬라이드 · 갤러리(분류·즐겨찾기) · 크게 보기(확대) ===== */
 var hsTimer=null, RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
 function hsShow(d,fromUser){
   var im=document.getElementById('hs'); if(!im) return;
-  S.hi=(S.hi+d+HERO.length)%HERO.length;
-  var src='photos/g/'+pad(HERO[S.hi])+'.jpg', n=document.getElementById('hs-n');
-  var swap=function(){ im.src=src; im.classList.toggle('hs-contain',HCON.indexOf(HERO[S.hi])>-1); if(n) n.textContent=(S.hi+1)+' / '+HERO.length; im.classList.remove('fade-out'); };
+  var P=HP(); S.hi=((S.hi+d)%P.length+P.length)%P.length;
+  var cur=P[S.hi], src='photos/g/'+pad(cur)+'.jpg', n=document.getElementById('hs-n');
+  var swap=function(){ im.src=src; im.classList.toggle('hs-contain',hcon(cur)); if(n) n.textContent=(S.hi+1)+' / '+P.length; im.classList.remove('fade-out'); };
   var pre=new Image(); pre.onload=function(){ if(RM&&RM.matches){ swap(); } else { im.classList.add('fade-out'); setTimeout(swap,180); } }; pre.src=src;
-  var nx=new Image(); nx.src='photos/g/'+pad(HERO[(S.hi+1)%HERO.length])+'.jpg';
+  var nx=new Image(); nx.src='photos/g/'+pad(P[(S.hi+1)%P.length])+'.jpg';
   if(fromUser) heroStop();
 }
 function heroStop(){ if(hsTimer){ clearInterval(hsTimer); hsTimer=null; } }
 function heroStart(){
   heroStop();
-  var box=document.querySelector('[data-hero]'); if(!box||(RM&&RM.matches)) return;
+  var box=document.querySelector('[data-hero]'); if(!box||(RM&&RM.matches)||HP().length<2) return;
   hsTimer=setInterval(function(){ if(document.hidden||!document.getElementById('hs')){ if(!document.getElementById('hs')) heroStop(); return; } hsShow(1,false); },7000);
+}
+function galRefresh(focusSel){
+  var el=document.querySelector('.gal'); if(!el) return;
+  var y=window.scrollY; el.outerHTML=galleryHTML(); window.scrollTo(0,y);
+  if(focusSel){ var f=document.querySelector(focusSel); if(f) f.focus(); }
 }
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-hs]'); if(b){ hsShow(+b.getAttribute('data-hs'),true); return; }
-  if(e.target.closest('[data-galmore]')){ S.galAll=true; var y=window.scrollY; render(); window.scrollTo(0,y); return; }
-  var g=e.target.closest('[data-gi]'); if(g){ lbOpen(+g.getAttribute('data-gi'),g); return; }
-  var hh=e.target.closest('#hs'); if(hh&&!window.__sw){ heroStop(); lbOpen(HERO[S.hi],hh); }
+  if(e.target.closest('[data-galmore]')){ S.galAll=true; galRefresh(); return; }
+  var t=e.target.closest('[data-gtag]'); if(t){ S.galTag=t.getAttribute('data-gtag'); S.galAll=false; galRefresh('[data-gtag="'+S.galTag+'"]'); return; }
+  if(e.target.closest('[data-gh]')){ DB.gh=!DB.gh; save(); S.hi=0; if(document.getElementById('hs')){ var y=window.scrollY; render(); window.scrollTo(0,y); } else galRefresh(); announce(DB.gh?'대표 사진에 즐겨찾기만 씁니다.':'대표 사진에 모든 사진을 씁니다.'); return; }
+  var f=e.target.closest('[data-gf]'); if(f){ var i=+f.getAttribute('data-gf'); gfToggle(i); galRefresh('[data-gf="'+i+'"]'); return; }
+  var g=e.target.closest('[data-gi]'); if(g){ var list=galList(); lbOpen(list.indexOf(+g.getAttribute('data-gi')),g,list); return; }
+  var hh=e.target.closest('#hs'); if(hh&&!window.__sw){ heroStop(); var P=HP(); lbOpen(S.hi,hh,P); }
 });
+function gfToggle(i){
+  if(!DB.gf) DB.gf={};
+  if(DB.gf[i]) delete DB.gf[i]; else DB.gf[i]=1;
+  save(); announce(DB.gf[i]?'즐겨찾기에 담았습니다.':'즐겨찾기에서 뺐습니다.');
+  if(DB.gh&&!gfavs().length){ DB.gh=false; save(); }
+}
 (function(){ var sx=null;
   document.addEventListener('pointerdown',function(e){ var h=e.target.closest('[data-hero] img'); sx=h?e.clientX:null; });
   document.addEventListener('pointerup',function(e){ if(sx===null) return; var dx=e.clientX-sx; sx=null; if(Math.abs(dx)>40){ window.__sw=true; setTimeout(function(){ window.__sw=false; },80); hsShow(dx<0?1:-1,true); } });
   document.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ')&&e.target.id==='hs'){ e.preventDefault(); e.target.click(); } });
 })();
-var lb={i:0,from:null};
-function lbOpen(i,from){
-  lb.i=i; lb.from=from||null;
-  var o=document.getElementById('lbx');
+
+/* --- 크게 보기: 확대(버튼 · 휠 · 핀치 · 두 번 탭) · 끌어서 이동 · 설명 · 즐겨찾기 --- */
+var lb={list:[],p:0,from:null,z:1,x:0,y:0};
+var TAGN={car:'승용차',f1:'포뮬러',race:'레이싱·랠리',people:'인물',poster:'포스터·광고',art:'일러스트'};
+function lbEl(){ return document.getElementById('lbx'); }
+function lbOpen(p,from,list){
+  lb.list=list; lb.p=Math.max(0,p); lb.from=from||null;
+  var o=lbEl();
   if(!o){ o=document.createElement('div'); o.id='lbx'; o.className='lbx'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label','사진 크게 보기');
-    o.innerHTML='<button class="lbx-x" type="button" data-lbc aria-label="닫기">닫기</button><button class="lbx-n lbx-p" type="button" data-lbn="-1" aria-label="이전 사진">‹</button><img id="lbi" alt=""><button class="lbx-n" type="button" data-lbn="1" aria-label="다음 사진">›</button><span class="lbx-c" id="lbc"></span>';
-    document.body.appendChild(o); }
+    o.innerHTML='<div class="lbx-bar"><button type="button" data-lbz="-1" aria-label="축소">−</button><button type="button" data-lbz="1" aria-label="확대">+</button><button type="button" data-lbz="0" aria-label="화면에 맞추기">맞춤</button><button type="button" data-lbf="1" aria-pressed="false">즐겨찾기</button><button class="lbx-x" type="button" data-lbc="1" aria-label="닫기">닫기</button></div>'
+      +'<div class="lbx-s" id="lbs"><img id="lbi" alt="" draggable="false"></div>'
+      +'<button class="lbx-n lbx-p" type="button" data-lbn="-1" aria-label="이전 사진">‹</button><button class="lbx-n" type="button" data-lbn="1" aria-label="다음 사진">›</button>'
+      +'<div class="lbx-cap" aria-live="polite"><b id="lbt"></b><span id="lbd"></span></div>';
+    document.body.appendChild(o); lbBind(); }
   lbSet(0); o.classList.add('on'); document.body.style.overflow='hidden'; o.querySelector('[data-lbc]').focus();
 }
-function lbSet(d){ lb.i=(lb.i+d+NPH)%NPH; document.getElementById('lbi').src='photos/g/'+pad(lb.i)+'.jpg'; document.getElementById('lbc').textContent=(lb.i+1)+' / '+NPH; }
-function lbClose(){ var o=document.getElementById('lbx'); if(!o) return; o.classList.remove('on'); document.body.style.overflow=''; if(lb.from&&document.body.contains(lb.from)) lb.from.focus(); }
-document.addEventListener('click',function(e){
-  var o=document.getElementById('lbx'); if(!o||!o.classList.contains('on')) return;
-  var n=e.target.closest('[data-lbn]'); if(n){ lbSet(+n.getAttribute('data-lbn')); return; }
-  if(e.target.closest('[data-lbc]')||e.target===o) lbClose();
-});
+function lbCur(){ return lb.list[lb.p]; }
+function lbSet(d){
+  var L=lb.list.length; lb.p=((lb.p+d)%L+L)%L; lb.z=1; lb.x=0; lb.y=0; lbApply();
+  var i=lbCur(), g=GAL[i];
+  document.getElementById('lbi').src='photos/g/'+pad(i)+'.jpg';
+  document.getElementById('lbt').textContent=TAGN[g[0]]+' · '+(lb.p+1)+' / '+L;
+  document.getElementById('lbd').textContent=g[1];
+  lbFav();
+}
+function lbFav(){ var b=document.querySelector('[data-lbf]'); if(!b) return; var on=!!(DB.gf&&DB.gf[lbCur()]); b.setAttribute('aria-pressed',String(on)); b.textContent=on?'즐겨찾기 해제':'즐겨찾기'; }
+function lbApply(){
+  var im=document.getElementById('lbi'); if(!im) return;
+  if(lb.z<=1){ lb.z=1; lb.x=0; lb.y=0; } else {
+    var mx=im.clientWidth*(lb.z-1)/2+40, my=im.clientHeight*(lb.z-1)/2+40;
+    lb.x=Math.max(-mx,Math.min(mx,lb.x)); lb.y=Math.max(-my,Math.min(my,lb.y));
+  }
+  im.style.transform='translate('+lb.x+'px,'+lb.y+'px) scale('+lb.z+')'; im.style.cursor=lb.z>1?'grab':'zoom-in';
+}
+function lbZoomAt(nz,cx,cy){
+  nz=Math.max(1,Math.min(5,nz)); var s=document.getElementById('lbs').getBoundingClientRect();
+  var px=cx-(s.left+s.width/2), py=cy-(s.top+s.height/2), r=nz/lb.z;
+  lb.x=px-(px-lb.x)*r; lb.y=py-(py-lb.y)*r; lb.z=nz; lbApply();
+}
+function lbZoomBtn(d){
+  var s=document.getElementById('lbs').getBoundingClientRect(), cx=s.left+s.width/2, cy=s.top+s.height/2;
+  if(d===0){ lb.z=1; lbApply(); } else lbZoomAt(lb.z*(d>0?1.5:1/1.5),cx,cy);
+}
+function lbClose(){ var o=lbEl(); if(!o) return; o.classList.remove('on'); document.body.style.overflow=''; if(lb.from&&document.body.contains(lb.from)) lb.from.focus(); }
+function lbBind(){
+  var o=lbEl(), st=document.getElementById('lbs'), ptr={}, start=null, last=0, lx=0, ly=0;
+  var cnt=function(){ return Object.keys(ptr).length; };
+  var dist=function(){ var k=Object.keys(ptr); return Math.hypot(ptr[k[0]].x-ptr[k[1]].x,ptr[k[0]].y-ptr[k[1]].y); };
+  var mid=function(){ var k=Object.keys(ptr); return {x:(ptr[k[0]].x+ptr[k[1]].x)/2,y:(ptr[k[0]].y+ptr[k[1]].y)/2}; };
+  st.addEventListener('pointerdown',function(e){
+    st.setPointerCapture(e.pointerId); ptr[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(cnt()===2) start={d:dist(),z:lb.z,two:true};
+    else start={x:e.clientX,y:e.clientY,ox:lb.x,oy:lb.y,t:Date.now(),moved:0,two:false};
+  });
+  st.addEventListener('pointermove',function(e){
+    if(!ptr[e.pointerId]) return; ptr[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(cnt()===2&&start&&start.two){ var m=mid(); lbZoomAt(start.z*dist()/start.d,m.x,m.y); return; }
+    if(cnt()===1&&start&&!start.two){ var dx=e.clientX-start.x, dy=e.clientY-start.y; start.moved=Math.max(start.moved,Math.hypot(dx,dy)); if(lb.z>1){ lb.x=start.ox+dx; lb.y=start.oy+dy; lbApply(); } }
+  });
+  var up=function(e){
+    if(!ptr[e.pointerId]) return; var wasTwo=start&&start.two; delete ptr[e.pointerId];
+    if(wasTwo){ start=null; return; }
+    if(!start) return;
+    var dx=e.clientX-start.x, dy=e.clientY-start.y, dur=Date.now()-start.t, s=start; start=null;
+    if(s.moved<8&&dur<300){ var now=Date.now(); if(now-last<320&&Math.hypot(e.clientX-lx,e.clientY-ly)<40){ if(lb.z>1){ lb.z=1; lbApply(); } else lbZoomAt(2.5,e.clientX,e.clientY); last=0; } else { last=now; lx=e.clientX; ly=e.clientY; } return; }
+    if(lb.z===1&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) lbSet(dx<0?1:-1);
+  };
+  st.addEventListener('pointerup',up); st.addEventListener('pointercancel',function(e){ delete ptr[e.pointerId]; start=null; });
+  st.addEventListener('wheel',function(e){ e.preventDefault(); lbZoomAt(lb.z*Math.exp(-e.deltaY*0.0018),e.clientX,e.clientY); },{passive:false});
+  o.addEventListener('click',function(e){
+    var n=e.target.closest('[data-lbn]'); if(n){ lbSet(+n.getAttribute('data-lbn')); return; }
+    var z=e.target.closest('[data-lbz]'); if(z){ lbZoomBtn(+z.getAttribute('data-lbz')); return; }
+    if(e.target.closest('[data-lbf]')){ gfToggle(lbCur()); lbFav(); galRefresh(); return; }
+    if(e.target.closest('[data-lbc]')||e.target===o) lbClose();
+  });
+}
 document.addEventListener('keydown',function(e){
-  var o=document.getElementById('lbx'); if(!o||!o.classList.contains('on')) return;
+  var o=lbEl(); if(!o||!o.classList.contains('on')) return;
   if(e.key==='Escape') lbClose(); else if(e.key==='ArrowRight') lbSet(1); else if(e.key==='ArrowLeft') lbSet(-1);
+  else if(e.key==='+'||e.key==='=') lbZoomBtn(1); else if(e.key==='-') lbZoomBtn(-1); else if(e.key==='0') lbZoomBtn(0);
   else if(e.key==='Tab'){ var f=[].slice.call(o.querySelectorAll('button')); var a=document.activeElement, i=f.indexOf(a); e.preventDefault(); f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus(); }
 });
-(function(){ var sx=null;
-  document.addEventListener('pointerdown',function(e){ sx=e.target.id==='lbi'?e.clientX:null; });
-  document.addEventListener('pointerup',function(e){ if(sx===null) return; var dx=e.clientX-sx; sx=null; if(Math.abs(dx)>40) lbSet(dx<0?1:-1); });
-})();
-
 
 /* ===== 다크 모드 구조도: 기본은 밝은 종이 카드, 원하면 어둡게 ===== */
 (function(){
