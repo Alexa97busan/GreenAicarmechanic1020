@@ -262,7 +262,112 @@ function makeSusp() {
   return { group: g, MODES, apply, view: { pos: [3.4, 1.9, 5.2], target: [0.45, 0.85, 0] }, title: "독립 현가장치 구조", legendOf: (mode) => mode === "mcp" ? [["#f08a3c", "스트럿(스프링+쇽업소버)"], ["#b4babe", "로어 암"], ["#5f9fe6", "차체"]] : [["#f08a3c", "어퍼 암(위시본 윗부분)"], ["#b4babe", "로어 암"], ["#5f9fe6", "차체"]] };
 }
 
-const REG = { car: makeCar, susp: makeSusp };
+
+// ================= model 3: axle wind-up =================
+function makeAxle() {
+  const g = new THREE.Group();
+  const ground = new THREE.GridHelper(12, 24, 0x9aa19d, 0xc7c9c4); ground.material.transparent = true; ground.material.opacity = 0.5; g.add(ground);
+  const L = 1.6, AY = 0.5, LEAF_Y = 0.8;
+  // frame (spring-up mass), brackets and shackles
+  const frame = mesh(new RoundedBoxGeometry(4.6, 0.5, 1.9, 4, 0.1), mat(BLUE, 0.45, 0.3, { transparent: true, opacity: 0.55 }), [0, 1.62, 0]); g.add(frame);
+  [-1, 1].forEach((sz) => [-1, 1].forEach((sx) => {
+    const post = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.62, 10), mat(STEEL, 0.4, 0.7), [sx * L, 1.2, sz * 0.6]); g.add(post);
+  }));
+  // axle assembly: rotates about z
+  const axle = new THREE.Group(); axle.position.set(0, AY, 0); g.add(axle);
+  const tube = mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.1, 20), mat(DARK, 0.5, 0.6)); tube.rotation.x = Math.PI / 2; axle.add(tube);
+  const diff = mesh(new THREE.SphereGeometry(0.3, 28, 20), mat(ORANGE, 0.4, 0.5)); diff.scale.set(1, 1, 1.1); axle.add(diff);
+  const pinion = mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.6, 20), mat(ORANGE, 0.4, 0.5)); pinion.rotation.z = -Math.PI / 2; pinion.position.set(0.5, 0, 0); axle.add(pinion);
+  const flange = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.06, 20), mat(STEEL, 0.4, 0.7)); flange.rotation.z = Math.PI / 2; flange.position.set(0.82, 0, 0); axle.add(flange);
+  [-0.6, 0.6].forEach((z) => axle.add(mesh(new THREE.BoxGeometry(0.34, 0.1, 0.2), mat(DARK, 0.5, 0.6), [0, 0.28, z])));
+  // wheels (translucent so the springs stay visible)
+  const wheels = [];
+  [1.1, -1.1].forEach((z) => {
+    const w = new THREE.Group();
+    const tire = mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.34, 40), mat(TIRE, 0.9, 0, { transparent: true, opacity: 0.55 })); tire.rotation.x = Math.PI / 2;
+    const rim = mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.36, 30), mat(0xd9dcdf, 0.35, 0.7)); rim.rotation.x = Math.PI / 2;
+    const mark = mesh(new THREE.BoxGeometry(0.34, 0.06, 0.38), mat(ORANGE, 0.3, 0.5), [0.17, 0, 0]);
+    w.add(tire, rim, mark); w.position.set(0, AY, z); g.add(w); wheels.push({ w, mark });
+  });
+  // leaf springs
+  const leafMat = mat(0x8c9399, 0.4, 0.7);
+  const leaves = [[1, 0], [0.82, 0.06], [0.62, 0.12], [0.42, 0.18]];
+  const sprs = [0.6, -0.6].map((z) => leaves.map(() => { const m = new THREE.Mesh(new THREE.BufferGeometry(), leafMat); m.userData.z = z; g.add(m); return m; })).flat();
+  const A = L / Math.PI;
+  function leafPts(frac, off, phi) {
+    const pts = [];
+    for (let i = 0; i <= 40; i++) {
+      const x = -L * frac + (2 * L * frac * i) / 40;
+      const base = LEAF_Y + 0.1 * (1 - (x / L) ** 2) - off * 0.6;
+      const dy = A * phi * Math.sin(Math.PI * x / L) * (frac < 1 && Math.abs(x) > L ? 0 : 1);
+      pts.push(new THREE.Vector3(x, base + dy, 0));
+    }
+    return pts;
+  }
+  // traction bars
+  const bars = [0.42, -0.42].map(() => { const b = mesh(new THREE.CylinderGeometry(0.035, 0.035, 1, 10), mat(0xd14b3f, 0.35, 0.5)); g.add(b); return b; });
+  const barEnds = [0.42, -0.42].map(() => { const e = mesh(new THREE.SphereGeometry(0.075, 14, 10), mat(0xd14b3f, 0.3, 0.5)); g.add(e); return e; });
+  const frameBracket = [0.42, -0.42].map((z) => { const b = mesh(new THREE.BoxGeometry(0.14, 0.22, 0.1), mat(DARK, 0.5, 0.5), [1.95, 0.72, z]); g.add(b); return b; });
+  // propshaft from the fixed transmission to the pinion
+  const prop = mesh(new THREE.CylinderGeometry(0.065, 0.065, 1, 14), mat(STEEL, 0.4, 0.8)); g.add(prop);
+  const gearbox = mesh(new THREE.BoxGeometry(0.5, 0.4, 0.4), mat(DARK, 0.5, 0.5), [2.75, 0.62, 0]); g.add(gearbox);
+  const axes = new THREE.Group(); g.add(axes);
+  const ar = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), 1.3, 0x2f9a57, 0.2, 0.12); axes.add(ar);
+  const al = label("Y축(좌우)", "#2f9a57"); al.position.set(0, 0, 1.75); axes.add(al); axes.position.set(-1.0, 0.03, 1.6);
+  // dynamics
+  let phi = 0, w = 0, lastT = -1, mode0 = "", bar0 = null, hopMax = 0;
+  function step(t, mode, bar) {
+    if (t < lastT || mode !== mode0 || bar !== bar0) { phi = 0; w = 0; lastT = t; mode0 = mode; bar0 = bar; }
+    const sign = mode === "brake" ? -1 : 1;
+    const k = bar ? 640 : 190, c = bar ? 26 : 1.7;
+    let tt = lastT;
+    while (tt < t - 1e-9) {
+      const h = Math.min(1 / 240, t - tt); tt += h;
+      const cyc = tt % 4.2;
+      const tau = sign * 34 * smooth(0.3, 0.7, cyc) * (cyc < 1.9 ? 1 : 0);
+      w += (tau - k * phi - c * w) * h; phi += w * h; phi = Math.max(-0.34, Math.min(0.34, phi));
+    }
+    lastT = t;
+  }
+  const MODES = {
+    accel: { short: "급가속", name: "와인드업 (Wind-up) · 급가속", sub: "스프링 아래 질량 · Y축 회전", ecs: true, text: "급가속하면 바퀴가 앞으로 구르는 반작용으로 <b>차축(디퍼렌셜 하우징)이 Y축(좌우축)을 중심으로 회전</b>해 피니언 쪽이 들리고, <b>판 스프링이 S자로 감깁니다(와인드업).</b> 토크가 풀리면 스프링이 되튀며 바퀴가 튀는 <b>휠 트램프·휠 홉</b>으로 이어집니다. <b>트랙션(안티 트램프) 바</b>가 차축 회전을 붙잡아 줍니다." },
+    brake: { short: "급제동", name: "와인드업 (Wind-up) · 급제동", sub: "스프링 아래 질량 · Y축 회전", ecs: true, text: "급제동할 때는 <b>제동 토크의 반작용이 반대로 작용</b>해 차축이 반대 방향으로 돌고 판 스프링이 <b>반대쪽 S자</b>로 감깁니다. 판 스프링 현가장치의 일체 차축에서 나타나는 <b>스프링 아래 질량의 진동</b>입니다." },
+  };
+  const tmpA = new THREE.Vector3();
+  function apply(mode, t, bar) {
+    step(t, mode, bar);
+    axle.rotation.z = phi;
+    const hop = Math.max(0, 0.42 * phi * (mode === "brake" ? -1 : 1));
+    hopMax = hop;
+    wheels.forEach(({ w: wh, mark }) => { wh.position.y = AY + hop; wh.rotation.z = -(t * (mode === "brake" ? 3 : 6)); });
+    axle.position.y = AY + hop;
+    sprs.forEach((m, i) => {
+      const [frac, off] = leaves[i % 4];
+      const pts = leafPts(frac, off, phi);
+      const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.035, 5);
+      m.geometry.dispose(); m.geometry = geo; m.position.set(0, 0, m.userData.z);
+    });
+    g.updateMatrixWorld(true);
+    // propshaft: fixed end at the transmission, free end follows the pinion flange
+    const fl = axle.localToWorld(tmpA.set(0.85, 0, 0)).clone();
+    const a = new THREE.Vector3(2.55, 0.62, 0), d = new THREE.Vector3().subVectors(fl, a);
+    prop.position.copy(a).addScaledVector(d, 0.5); prop.scale.y = d.length(); prop.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize());
+    bars.forEach((b, i) => {
+      b.visible = barEnds[i].visible = frameBracket[i].visible = !!bar;
+      if (!bar) return;
+      const z = i === 0 ? 0.42 : -0.42;
+      const p = axle.localToWorld(new THREE.Vector3(0.3, -0.2, z)); const q2 = new THREE.Vector3(1.95, 0.72, z);
+      barEnds[i].position.copy(p); const dd = new THREE.Vector3().subVectors(q2, p);
+      b.position.copy(p).addScaledVector(dd, 0.5); b.scale.y = dd.length(); b.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dd.normalize());
+    });
+    const m = MODES[mode]; const ang = deg(phi);
+    const trampy = hop > 0.04;
+    return { name: m.name, sub: m.sub, text: m.text, read: "차축 회전 <i>" + (ang >= 0 ? "+" : "") + ang.toFixed(1) + "°</i> · " + (trampy ? "<i>바퀴가 튐(트램프)</i>" : "접지 유지") };
+  }
+  return { group: g, MODES, apply, toggleName: "트랙션 바", view: { pos: [3.4, 1.5, 5.2], target: [0.4, 0.85, 0] }, title: "판 스프링 차축의 와인드업", legendOf: () => [["#f08a3c", "차축·디퍼렌셜(스프링 아래 질량)"], ["#8c9399", "판 스프링"], ["#d14b3f", "트랙션(안티 트램프) 바"], ["#5f9fe6", "차체"]] };
+}
+
+const REG = { car: makeCar, susp: makeSusp, axle: makeAxle };
 const key = REG[q.get("m")] ? q.get("m") : "car";
 const model = REG[key]();
 scene.add(model.group);
@@ -275,12 +380,12 @@ const modeKeys = Object.keys(model.MODES);
 let mode = modeKeys.includes(q.get("mode")) ? q.get("mode") : modeKeys[0];
 let t = 0, playing = !still.matches, ecs = false, travel = 0.0, last = 0, visible = true, travelAuto = true;
 const modesEl = $("modes"), extra = $("extra");
-modeKeys.forEach((k) => { const b = document.createElement("button"); b.textContent = model.MODES[k].name.split(" (")[0]; b.dataset.k = k; b.addEventListener("click", () => { mode = k; t = 0; sync(); }); modesEl.appendChild(b); });
+modeKeys.forEach((k) => { const b = document.createElement("button"); b.textContent = model.MODES[k].short || model.MODES[k].name.split(" (")[0]; b.dataset.k = k; b.addEventListener("click", () => { mode = k; t = 0; sync(); }); modesEl.appendChild(b); });
 const play = document.createElement("button"); play.className = "pri"; extra.appendChild(play);
 play.addEventListener("click", () => { playing = !playing; if (playing) travelAuto = true; sync(); });
 let ecsBtn = null, slider = null;
-if (key === "car") {
-  ecsBtn = document.createElement("button"); ecsBtn.textContent = "전자제어 현가 ON"; ecsBtn.addEventListener("click", () => { ecs = !ecs; sync(); }); extra.appendChild(ecsBtn);
+if (key === "car" || key === "axle") {
+  ecsBtn = document.createElement("button"); ecsBtn.textContent = (model.toggleName || "전자제어 현가") + " OFF"; ecsBtn.addEventListener("click", () => { ecs = !ecs; sync(); }); extra.appendChild(ecsBtn);
 } else {
   slider = document.createElement("input"); slider.type = "range"; slider.min = "-15"; slider.max = "20"; slider.value = "0"; slider.setAttribute("aria-label", "바퀴 상하 이동량(cm)");
   slider.addEventListener("input", () => { playing = false; travelAuto = false; travel = +slider.value / 100; sync(); }); extra.appendChild(slider);
@@ -288,12 +393,12 @@ if (key === "car") {
 function sync() {
   [...modesEl.children].forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === mode)));
   play.textContent = playing ? "일시정지" : "재생"; play.setAttribute("aria-pressed", "false");
-  if (ecsBtn) { const has = model.MODES[mode].ecs; ecsBtn.style.display = has ? "" : "none"; ecsBtn.setAttribute("aria-pressed", String(ecs)); ecsBtn.textContent = "전자제어 현가 " + (ecs ? "ON" : "OFF"); }
+  if (ecsBtn) { const has = model.MODES[mode].ecs; ecsBtn.style.display = has ? "" : "none"; ecsBtn.setAttribute("aria-pressed", String(ecs)); ecsBtn.textContent = (model.toggleName || "전자제어 현가") + " " + (ecs ? "ON" : "OFF"); }
   const lg = model.legendOf(mode); $("legend").innerHTML = lg.map(([c, n]) => '<span style="--c:' + c + '">' + n + "</span>").join("");
   if (!playing || still.matches) draw();
 }
 function draw() {
-  const r = key === "car" ? model.apply(mode, t, ecs) : model.apply(mode, travel);
+  const r = key === "susp" ? model.apply(mode, travel) : model.apply(mode, t, ecs);
   $("mname").textContent = r.name; $("msub").textContent = r.sub; $("val").innerHTML = r.read; $("explain").innerHTML = r.text;
   if (slider) slider.value = String(Math.round(travel * 100));
 }
