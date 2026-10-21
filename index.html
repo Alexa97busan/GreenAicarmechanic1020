@@ -280,7 +280,16 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .trio.five>*:nth-child(n+4){grid-column:span 3}
 @media (max-width:860px){.trio.five{grid-template-columns:repeat(2,minmax(0,1fr))}.trio.five>*{grid-column:auto!important}}
 @media (max-width:560px){.trio.five{grid-template-columns:minmax(0,1fr)}.cmp .btn{min-height:56px;font-size:15px}}
+/* 다듬기: 풀이 화면 */
+.bar{height:8px;border-radius:4px}
+.bar i{transition:width .3s var(--ease)}
+.q{font-size:24px;line-height:1.5}
+.link{min-height:40px;padding:0 14px;margin-left:-14px;border-radius:var(--radius-row);text-decoration:none;display:inline-flex;align-items:center;transition:background-color .14s var(--ease),color .14s var(--ease)}
+.link:active{background:var(--surface)}
+@media (hover:hover) and (pointer:fine){.link:hover{background:var(--surface)}}
+@media (max-width:480px){.q{font-size:20px}.card{padding:22px 18px}}
 @media (prefers-reduced-motion:reduce){
+  .bar i{transition:none}
   .shake{animation:none!important}
   .res,.ans{animation:fadein .15s ease-out}
   .btn:active,.chip:active,.rowcard:active,.opts .btn:active,.mt-i:active,.topic:active,.cmp .btn:active,.seq-slot.filled:active,nav button:active{transform:none}
