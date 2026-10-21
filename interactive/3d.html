@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>3D 구조 보기</title>
+<meta name="color-scheme" content="light dark">
+<style>
+:root{--bg:#f4f4f1;--panel:#e9e9e4;--text:#1b1d1c;--muted:#5d625f;--accent:#1b6e66;--line:#cfcfc8;--ease:cubic-bezier(0.23,1,0.32,1)}
+@media (prefers-color-scheme:dark){:root{--bg:#121413;--panel:#1c1f1d;--text:#ecefed;--muted:#9aa19d;--accent:#5fc3b8;--line:#2f3532}}
+*{box-sizing:border-box}
+html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;word-break:keep-all;overflow-wrap:break-word;padding:0 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:960px;margin:0 auto}
+header{padding:calc(14px + env(safe-area-inset-top,0px)) 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+h1{font-size:22px;margin:0;letter-spacing:-.01em}
+a.back{color:var(--accent);text-decoration:none;font-size:14px;min-height:40px;display:inline-flex;align-items:center}
+.stage{position:relative;background:var(--panel);border-radius:20px;overflow:hidden;height:min(58vh,520px);min-height:320px}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.hud{position:absolute;left:12px;top:10px;right:12px;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+.badge{background:var(--bg);border-radius:14px;padding:6px 12px;min-width:0}
+.badge b{display:block;font-size:18px;line-height:1.3}
+.badge span{font-size:12px;color:var(--muted)}
+.val{background:var(--bg);border-radius:14px;padding:6px 12px;font-size:13px;color:var(--muted);text-align:right;align-self:flex-start}
+.val i{font-style:normal;color:var(--text);font-weight:600}
+.hint{position:absolute;left:12px;bottom:8px;font-size:12px;color:var(--muted);pointer-events:none}
+.ctl{display:grid;gap:10px;margin-top:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;cursor:pointer;touch-action:manipulation;transition:transform .14s var(--ease),background-color .14s var(--ease)}
+button:active{transform:scale(.97)}
+button.pri{background:var(--text);color:var(--bg);border-color:var(--text)}
+button[aria-pressed=true]{outline:2px solid var(--accent);outline-offset:1px}
+@media (hover:hover) and (pointer:fine){button:hover{background:var(--line)}button.pri:hover{opacity:.88;background:var(--text)}}
+input[type=range]{width:100%;min-height:40px;accent-color:var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--c)}
+.explain{background:var(--panel);border-radius:16px;padding:12px 16px;font-size:15px;line-height:1.55}
+.explain b{color:var(--accent)}
+.fallback{display:none;padding:40px 20px;text-align:center;color:var(--muted)}
+body.embed header{display:none}
+body.embed{padding:0 0 calc(8px + env(safe-area-inset-bottom,0px))}
+body.embed .stage{height:min(46vh,360px);min-height:260px;border-radius:16px}
+@media (prefers-reduced-motion:reduce){button{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1 id="title">3D 구조 보기</h1><a class="back" href="../index.html">‹ 공부 사이트</a></header>
+  <div class="stage" id="stage">
+    <canvas id="c" aria-label="3D 모형. 드래그하면 돌려 볼 수 있고, 두 손가락이나 휠로 확대한다."></canvas>
+    <div class="hud"><div class="badge"><b id="mname">-</b><span id="msub">-</span></div><div class="val" id="val"></div></div>
+    <div class="hint">드래그: 돌려 보기 · 핀치/휠: 확대</div>
+    <div class="fallback" id="fb">이 기기에서는 3D를 표시할 수 없습니다.</div>
+  </div>
+  <div class="ctl">
+    <div class="row" id="modes"></div>
+    <div class="row" id="extra"></div>
+    <div class="legend" id="legend"></div>
+    <div class="explain" id="explain"></div>
+  </div>
+</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+
+const q = new URLSearchParams(location.search);
+const embed = q.get("embed") === "1";
+if (embed) document.body.classList.add("embed");
+const $ = (id) => document.getElementById(id);
+const stage = $("stage"), canvas = $("c");
+const still = matchMedia("(prefers-reduced-motion: reduce)");
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
+catch (e) { canvas.style.display = "none"; $("fb").style.display = "block"; throw e; }
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08; controls.maxPolarAngle = Math.PI * 0.49;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f8c, 1.1));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(5, 9, 6); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.5); fill.position.set(-6, 3, -5); scene.add(fill);
+
+const mat = (c, r = 0.5, m = 0.2, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...extra });
+const BLUE = 0x5f9fe6, ORANGE = 0xf08a3c, STEEL = 0xb4babe, DARK = 0x4a5054, TIRE = 0x2b2e30;
+const mesh = (g, m, p = [0, 0, 0]) => { const o = new THREE.Mesh(g, m); o.position.set(...p); return o; };
+function spring(radius, coils, tube, color = 0xd68a2c) {
+  const pts = []; const n = coils * 14;
+  for (let i = 0; i <= n; i++) { const t = i / n, a = t * Math.PI * 2 * coils; pts.push(new THREE.Vector3(Math.cos(a) * radius, t, Math.sin(a) * radius)); }
+  return mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), n * 2, tube, 6), mat(color, 0.35, 0.6));
+}
+function label(text, color = "#1b1d1c") {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 96;
+  const g = c.getContext("2d"); g.font = "700 44px system-ui,sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillStyle = color; g.fillText(text, 128, 48);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthTest: false }));
+  s.scale.set(1.3, 0.49, 1); s.renderOrder = 10; return s;
+}
+const smooth = (a, b, t) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
+const env = (t) => { const c = t % 4.4; return smooth(0, 0.9, c) * (1 - smooth(2.6, 3.6, c)); };
+const deg = (r) => (r * 180 / Math.PI);
+
+// ================= model 1: body motion =================
+function makeCar() {
+  const g = new THREE.Group();
+  const ground = new THREE.GridHelper(14, 28, 0x9aa19d, 0xc7c9c4); ground.material.transparent = true; ground.material.opacity = 0.5; g.add(ground);
+  const body = new THREE.Group(); g.add(body);
+  const hull = mesh(new RoundedBoxGeometry(4.2, 0.62, 1.9, 4, 0.14), mat(BLUE, 0.4, 0.3)); hull.position.y = 0; body.add(hull);
+  const cabin = mesh(new RoundedBoxGeometry(2.2, 0.62, 1.7, 4, 0.2), mat(0x9db9d6, 0.2, 0.1, { transparent: true, opacity: 0.8 })); cabin.position.set(-0.2, 0.55, 0); body.add(cabin);
+  const nose = mesh(new THREE.BoxGeometry(0.06, 0.2, 0.9), mat(0xffffff, 0.3, 0.1), [2.12, 0.12, 0]); body.add(nose);
+  body.add(mesh(new THREE.BoxGeometry(0.06, 0.14, 0.5), mat(0xff6b5a, 0.3, 0.1), [-2.12, 0.1, 0]));
+  const wheels = [], springs = [], dampers = [];
+  const pos = [[1.3, 1.14], [1.3, -1.14], [-1.3, 1.14], [-1.3, -1.14]]; // fl fr rl rr (x, z)
+  const arms = [];
+  pos.forEach(([x, z]) => {
+    const w = new THREE.Group();
+    const tire = mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 36), mat(TIRE, 0.9, 0)); tire.rotation.x = Math.PI / 2;
+    const rim = mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.32, 28), mat(ORANGE, 0.35, 0.6)); rim.rotation.x = Math.PI / 2;
+    const cap = mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.34, 14), mat(STEEL, 0.4, 0.8)); cap.rotation.x = Math.PI / 2;
+    w.add(tire, rim, cap); g.add(w); wheels.push(w);
+    const sp = spring(0.1, 6, 0.016); g.add(sp); springs.push(sp);
+    const dp = mesh(new THREE.CylinderGeometry(0.035, 0.035, 1, 10), mat(DARK, 0.5, 0.6)); g.add(dp); dampers.push(dp);
+    w.userData = { x, z, sx: x > 0 ? x - 0.7 : x + 0.7, sz: z > 0 ? 0.82 : -0.82 };
+    const arm = mesh(new THREE.CylinderGeometry(0.04, 0.04, 1, 10), mat(STEEL, 0.4, 0.7)); g.add(arm); arms.push(arm);
+  });
+  const axes = new THREE.Group(); g.add(axes);
+  const arrow = (dir, c, t) => { const a = new THREE.ArrowHelper(dir, new THREE.Vector3(0, 0, 0), 1.6, c, 0.22, 0.14); axes.add(a); const l = label(t, "#" + c.toString(16).padStart(6, "0")); l.position.copy(dir.clone().multiplyScalar(1.95)); axes.add(l); };
+  arrow(new THREE.Vector3(1, 0, 0), 0xd14b3f, "X 앞뒤");
+  arrow(new THREE.Vector3(0, 0, 1), 0x2f9a57, "Y 좌우");
+  arrow(new THREE.Vector3(0, 1, 0), 0x3b6fd1, "Z 상하");
+  axes.position.set(-3.0, 0.02, -2.2);
+  const baseY = 1.2;
+  const corners = pos;
+  const MODES = {
+    bounce: { name: "바운싱 (Bouncing)", sub: "스프링 위 질량 · Z축 상하 병진", legend: "up", text: "<b>스프링 위 질량</b>(차체)이 <b>Z축을 따라 위아래로</b> 출렁입니다. 요철을 지날 때 차체 전체가 오르내리는 진동입니다.", f: (t) => ({ y: 0.16 * Math.sin(t * 5.6), p: 0, r: 0, yaw: 0, w: [0, 0, 0, 0] }), read: (s) => "상하 변위 <i>" + (s.y * 100).toFixed(0) + " cm</i>" },
+    pitch: { name: "피칭 (Pitching)", sub: "스프링 위 질량 · Y축 회전", legend: "up", text: "차체의 <b>앞쪽과 뒤쪽이 서로 반대로</b> 오르내립니다. 방지턱을 넘을 때처럼 <b>Y축(좌우축)을 중심으로 회전</b>하는 진동입니다.", f: (t) => ({ y: 0, p: 0.075 * Math.sin(t * 4.6), r: 0, yaw: 0, w: [0, 0, 0, 0] }), read: (s) => "피치각 <i>" + deg(s.p).toFixed(1) + "°</i>" },
+    roll: { name: "롤링 (Rolling)", sub: "스프링 위 질량 · X축 회전", legend: "up", text: "차체가 <b>X축(앞뒤축)을 중심으로 좌우로 기웁니다.</b> 정면에서 보면 회전하는 모양이며, 좌우 노면이 다르거나 선회할 때 생깁니다.", f: (t) => ({ y: 0, p: 0, r: 0.1 * Math.sin(t * 4.8), yaw: 0, w: [0, 0, 0, 0] }), read: (s) => "롤각 <i>" + deg(s.r).toFixed(1) + "°</i>" },
+    yaw: { name: "요잉 (Yawing)", sub: "스프링 위 질량 · Z축 회전", legend: "up", text: "차체가 <b>Z축(상하축)을 중심으로 좌우로 방향을 흔듭니다.</b> 위에서 보면 앞머리가 좌우로 도는 진동입니다.", f: (t) => ({ y: 0, p: 0, r: 0, yaw: 0.12 * Math.sin(t * 4.2), w: [0, 0, 0, 0] }), read: (s) => "요각 <i>" + deg(s.yaw).toFixed(1) + "°</i>" },
+    hop: { name: "휠 홉 (Wheel hop)", sub: "스프링 아래 질량 · Z축 상하", legend: "down", text: "<b>스프링 아래 질량</b>(바퀴·허브)이 <b>Z축으로 상하</b> 출렁입니다. 가벼워서 차체보다 <b>진동수가 높고 감쇄도 빠릅니다.</b>", f: (t) => ({ y: 0.012 * Math.sin(t * 13), p: 0, r: 0, yaw: 0, w: [1, 1, 1, 1].map((k) => 0.1 * Math.sin(t * 13) * k) }), read: (s) => "바퀴 상하 <i>" + (s.w[0] * 100).toFixed(0) + " cm</i>" },
+    tramp: { name: "휠 트램프 (Wheel tramp)", sub: "스프링 아래 질량 · X축 회전", legend: "down", text: "같은 축의 <b>좌우 바퀴가 서로 반대로</b> 위아래로 움직여 <b>X축을 중심으로 회전</b>하는 스프링 아래 질량의 진동입니다.", f: (t) => { const k = 0.1 * Math.sin(t * 12); return { y: 0, p: 0, r: 0.008 * Math.sin(t * 12), yaw: 0, w: [k, -k, k, -k] }; }, read: (s) => "좌우 차이 <i>" + (Math.abs(s.w[0] - s.w[1]) * 100).toFixed(0) + " cm</i>" },
+    dive: { name: "다이브 (Nose dive)", sub: "급제동 · 앞쪽이 내려앉음", legend: "up", ecs: true, text: "급제동하면 관성으로 <b>앞쪽이 내려앉습니다(다이브).</b> 전자제어 현가장치는 제동 신호를 받아 <b>안티 다이브 제어</b>로 앞 감쇠력을 높입니다.", f: (t, e) => { const k = env(t) * (e ? 0.3 : 1); return { y: -0.04 * k, p: -0.085 * k, r: 0, yaw: 0, w: [0, 0, 0, 0] }; }, read: (s) => "피치각 <i>" + deg(s.p).toFixed(1) + "°</i>" },
+    squat: { name: "스쿼트 (Squat)", sub: "급출발 · 앞쪽이 들림(노즈 업)", legend: "up", ecs: true, text: "급출발하면 <b>앞쪽이 들리고 뒤가 주저앉습니다(스쿼트).</b> 전자제어 현가장치는 <b>안티 스쿼트 제어</b>로 뒤 감쇠력을 높여 노즈 업을 막습니다.", f: (t, e) => { const k = env(t) * (e ? 0.3 : 1); return { y: 0.01 * k, p: 0.08 * k, r: 0, yaw: 0, w: [0, 0, 0, 0] }; }, read: (s) => "피치각 <i>" + deg(s.p).toFixed(1) + "°</i>" },
+    corner: { name: "선회 롤 (Rolling)", sub: "급선회 · 바깥쪽으로 기움", legend: "up", ecs: true, text: "급선회하면 원심력으로 차체가 <b>바깥쪽으로 기웁니다(롤링).</b> <b>G센서(가속도 센서)</b>가 롤을 감지하고 <b>안티 롤링 제어</b>와 <b>스테빌라이저</b>가 롤을 줄입니다.", f: (t, e) => { const k = env(t) * (e ? 0.3 : 1); return { y: 0, p: 0, r: 0.1 * k, yaw: -0.18 * env(t), w: [0, 0, 0, 0] }; }, read: (s) => "롤각 <i>" + deg(s.r).toFixed(1) + "°</i>" },
+  };
+  const tmpV = new THREE.Vector3();
+  function apply(mode, t, ecsOn) {
+    const m = MODES[mode], s = m.f(t, ecsOn);
+    body.position.set(0, baseY + s.y, 0); body.rotation.set(s.r, s.yaw, s.p);
+    g.updateMatrixWorld(true);
+    wheels.forEach((w, i) => { const { x, z } = w.userData; w.position.set(x, 0.42 + Math.max(-0.05, s.w[i]), z); w.rotation.z = 0; });
+    corners.forEach((c, i) => {
+      const u = wheels[i].userData, w = wheels[i].position;
+      const top = body.localToWorld(tmpV.set(u.sx, -0.31, u.sz)).clone();
+      const bottomY = w.y + 0.02;
+      const len = Math.max(0.12, top.y - bottomY);
+      const a = new THREE.Vector3(w.x, w.y, u.sz > 0 ? w.z - 0.15 : w.z + 0.15), b = new THREE.Vector3(u.sx, bottomY, u.sz);
+      const d = new THREE.Vector3().subVectors(b, a);
+      arms[i].position.copy(a).addScaledVector(d, 0.5); arms[i].scale.y = d.length(); arms[i].quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+      springs[i].position.set(u.sx + 0.07, bottomY, u.sz); springs[i].scale.y = len;
+      dampers[i].position.set(u.sx - 0.07, bottomY + len / 2, u.sz); dampers[i].scale.y = len;
+    });
+    return { name: m.name, sub: m.sub, text: m.text, read: m.read(s) };
+  }
+  return { group: g, body, wheels, MODES, apply, view: { pos: [6.2, 3.6, 7.2], target: [0, 0.7, 0] }, title: "차체 진동과 자세 제어", legendOf: () => [["#5f9fe6", "스프링 위 질량(차체)"], ["#f08a3c", "스프링 아래 질량(바퀴·허브)"], ["#d68a2c", "코일 스프링"]] };
+}
+
+// ================= model 2: suspension =================
+function makeSusp() {
+  const g = new THREE.Group();
+  const ground = new THREE.GridHelper(9, 18, 0x9aa19d, 0xc7c9c4); ground.material.transparent = true; ground.material.opacity = 0.5; g.add(ground);
+  const slab = mesh(new THREE.BoxGeometry(1.2, 1.6, 2.2), mat(BLUE, 0.45, 0.3, { transparent: true, opacity: 0.85 }), [-0.62, 0.95, 0]); g.add(slab);
+  g.add(mesh(new THREE.BoxGeometry(0.9, 0.14, 2.2), mat(BLUE, 0.45, 0.3, { transparent: true, opacity: 0.85 }), [0.43, 1.68, 0]));
+  const U = (u, v, z = 0) => new THREE.Vector3(u, v, z);
+  const A0 = [0, 0.3], B0 = [0.1, 0.98], T = [0.62, 1.78], LBJ0 = [0.95, 0.28], UBJ0 = [1.0, 0.86], WC0 = [1.2, 0.45];
+  const La = Math.hypot(LBJ0[0] - A0[0], LBJ0[1] - A0[1]);
+  const Kx = UBJ0[0] - LBJ0[0], Ky = UBJ0[1] - LBJ0[1], K = Math.hypot(Kx, Ky);
+  const wOff = [WC0[0] - LBJ0[0], WC0[1] - LBJ0[1]];
+  const Lb = Math.hypot(UBJ0[0] - B0[0], UBJ0[1] - B0[1]);
+  const rot = (p, a) => [p[0] * Math.cos(a) - p[1] * Math.sin(a), p[0] * Math.sin(a) + p[1] * Math.cos(a)];
+  const bar = (r, color) => mesh(new THREE.CylinderGeometry(r, r, 1, 14), mat(color, 0.4, 0.5));
+  const link = (m, a, b) => { m.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2); const d = new THREE.Vector3().subVectors(b, a); m.scale.set(1, d.length(), 1); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); };
+  const joint = (c = STEEL, r = 0.07) => mesh(new THREE.SphereGeometry(r, 16, 12), mat(c, 0.3, 0.8));
+  const lower = [bar(0.04, STEEL), bar(0.04, STEEL)], upper = [bar(0.04, ORANGE), bar(0.04, ORANGE)], knuckle = bar(0.06, DARK);
+  [...lower, ...upper, knuckle].forEach((m) => g.add(m));
+  const jL = [joint(), joint()], jU = [joint(ORANGE), joint(ORANGE)], jLo = joint(DARK, 0.09), jUp = joint(DARK, 0.09);
+  [...jL, ...jU, jLo, jUp].forEach((m) => g.add(m));
+  const wheel = new THREE.Group();
+  const tire = mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.34, 40), mat(TIRE, 0.9, 0)); tire.rotation.x = Math.PI / 2;
+  const rim = mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.36, 30), mat(0xd9dcdf, 0.35, 0.7)); rim.rotation.x = Math.PI / 2;
+  wheel.add(tire, rim); g.add(wheel);
+  // spring and damper (shared look): McPherson uses strut tube + rod, wishbone uses a damper between arm and body
+  const sp = spring(0.11, 7, 0.018); g.add(sp);
+  const tube = bar(0.065, DARK), rod = bar(0.032, STEEL), seatU = mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.03, 20), mat(DARK)), seatL = mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.03, 20), mat(DARK));
+  const topMount = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.08, 20), mat(ORANGE, 0.4, 0.5));
+  [tube, rod, seatU, seatL, topMount].forEach((m) => g.add(m));
+  const pivotBars = [0.62, -0.62];
+  function circleHit(c0, r0, c1, r1, pick) {
+    const dx = c1[0] - c0[0], dy = c1[1] - c0[1], d = Math.hypot(dx, dy);
+    const a = (r0 * r0 - r1 * r1 + d * d) / (2 * d), h2 = r0 * r0 - a * a; if (h2 < 0) return null;
+    const h = Math.sqrt(h2), px = c0[0] + a * dx / d, py = c0[1] + a * dy / d;
+    const s1 = [px + h * dy / d, py - h * dx / d], s2 = [px - h * dy / d, py + h * dx / d];
+    return pick(s1, s2);
+  }
+  const d0 = (() => { const a = Math.atan2(Ky, Kx); const sd = [UBJ0[0] - T[0], UBJ0[1] - T[1]]; const ang = Math.atan2(sd[1], sd[0]) - a; return { ang, len: Math.hypot(sd[0], sd[1]) }; })();
+  const MODES = {
+    mcp: { name: "맥퍼슨 스트럿형", sub: "독립 현가 · 어퍼 암 없음", legend: "strut", text: "<b>쇽업소버와 코일 스프링이 한 몸(스트럿)</b>으로 위쪽 차체에 고정되고, 아래는 <b>로어 암</b>이 잡습니다. <b>어퍼 암이 없어</b> 부품 수가 적고 구조가 간단하며 엔진룸 공간 확보에 유리합니다." },
+    wish: { name: "더블 위시본형", sub: "독립 현가 · 상·하 암", legend: "arm", text: "<b>위·아래 두 개의 암(V자·A자 모양)</b>이 너클을 잡고, 스프링·쇽업소버는 아래 암과 차체 사이에 놓입니다. <b>캠버 변화를 설계하기 좋지만</b> 부품이 많고 차지하는 공간이 큽니다." },
+  };
+  function apply(mode, travel) {
+    const a = Math.asin(Math.min(1, Math.max(-1, (LBJ0[1] + travel - A0[1]) / La)));
+    const LBJ = [A0[0] + La * Math.cos(a), A0[1] + La * Math.sin(a)];
+    let theta = 0, UBJ = UBJ0.slice(), strutLen = d0.len, camber = 0;
+    if (mode === "wish") {
+      const hit = circleHit(B0, Lb, LBJ, K, (s1, s2) => (s1[0] > s2[0] ? s1 : s2));
+      if (hit) { UBJ = hit; theta = Math.atan2(UBJ[1] - LBJ[1], UBJ[0] - LBJ[0]) - Math.atan2(Ky, Kx); }
+    } else {
+      let best = 1e9, bt = 0;
+      for (let i = -240; i <= 240; i++) { const th = i * 0.0013; const k = rot([Kx, Ky], th); const ub = [LBJ[0] + k[0], LBJ[1] + k[1]]; const dir = rot([Math.cos(Math.atan2(Ky, Kx) + d0.ang), Math.sin(Math.atan2(Ky, Kx) + d0.ang)], th - 0 * th);
+        const ax = Math.atan2(Ky, Kx) + th + d0.ang; const dd = [Math.cos(ax), Math.sin(ax)];
+        const cross = Math.abs((T[0] - ub[0]) * dd[1] - (T[1] - ub[1]) * dd[0]); if (cross < best) { best = cross; bt = th; } }
+      theta = bt; const k = rot([Kx, Ky], theta); UBJ = [LBJ[0] + k[0], LBJ[1] + k[1]]; strutLen = Math.hypot(UBJ[0] - T[0], UBJ[1] - T[1]);
+    }
+    camber = deg(theta);
+    const WC = (() => { const o = rot(wOff, theta); return [LBJ[0] + o[0], LBJ[1] + o[1]]; })();
+    wheel.position.set(WC[0], WC[1], 0); wheel.rotation.z = theta;
+    const P = (p, z = 0) => U(p[0], p[1], z);
+    // lower A-arm: two bars with different pivot depth
+    link(lower[0], P(A0, 0.55), P(LBJ, 0.05)); link(lower[1], P(A0, -0.55), P(LBJ, -0.05));
+    jL[0].position.copy(P(A0, 0.55)); jL[1].position.copy(P(A0, -0.55)); jLo.position.copy(P(LBJ));
+    const showUp = mode === "wish";
+    [...upper, ...jU].forEach((m) => { m.visible = showUp; });
+    if (showUp) { link(upper[0], P(B0, 0.5), P(UBJ, 0.05)); link(upper[1], P(B0, -0.5), P(UBJ, -0.05)); jU[0].position.copy(P(B0, 0.5)); jU[1].position.copy(P(B0, -0.5)); }
+    jUp.position.copy(P(UBJ)); link(knuckle, P(LBJ), P(UBJ));
+    // spring and damper
+    const strut = mode === "mcp";
+    [tube, rod, seatU, seatL, topMount].forEach((m) => { m.visible = true; });
+    if (strut) {
+      const dir = new THREE.Vector3(T[0] - UBJ[0], T[1] - UBJ[1], 0).normalize();
+      const top = P(T), s0 = P(UBJ).addScaledVector(dir, 0.15);
+      const tubeEnd = P(UBJ).addScaledVector(dir, 0.75);
+      link(tube, P(UBJ), tubeEnd); link(rod, tubeEnd.clone().addScaledVector(dir, -0.2), top);
+      topMount.position.copy(top); topMount.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      const sBase = P(UBJ).addScaledVector(dir, 0.42), sTop = top.clone().addScaledVector(dir, -0.14);
+      seatL.position.copy(sBase); seatL.quaternion.copy(topMount.quaternion); seatU.position.copy(sTop); seatU.quaternion.copy(topMount.quaternion);
+      sp.position.copy(sBase); sp.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); sp.scale.y = sTop.distanceTo(sBase);
+    } else {
+      const arm = P([A0[0] + (LBJ[0] - A0[0]) * 0.62, A0[1] + (LBJ[1] - A0[1]) * 0.62]);
+      const bodyP = P([0.46, 1.5]);
+      const dir = new THREE.Vector3().subVectors(bodyP, arm); const len = dir.length(); dir.normalize();
+      const mid = arm.clone().addScaledVector(dir, len * 0.5);
+      link(tube, arm, arm.clone().addScaledVector(dir, len * 0.5)); link(rod, arm.clone().addScaledVector(dir, len * 0.4), bodyP);
+      topMount.position.copy(bodyP); topMount.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      const sBase = arm.clone().addScaledVector(dir, 0.1), sTop = bodyP.clone().addScaledVector(dir, -0.1);
+      seatL.position.copy(sBase); seatL.quaternion.copy(topMount.quaternion); seatU.position.copy(sTop); seatU.quaternion.copy(topMount.quaternion);
+      sp.position.copy(sBase); sp.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); sp.scale.y = sTop.distanceTo(sBase);
+    }
+    const m = MODES[mode];
+    return { name: m.name, sub: m.sub, text: m.text, read: "휠 행정 <i>" + (travel >= 0 ? "+" : "") + (travel * 100).toFixed(0) + " cm</i> · 캠버 변화 <i>" + (camber >= 0 ? "+" : "") + camber.toFixed(1) + "°</i>" };
+  }
+  return { group: g, MODES, apply, view: { pos: [3.4, 1.9, 5.2], target: [0.45, 0.85, 0] }, title: "독립 현가장치 구조", legendOf: (mode) => mode === "mcp" ? [["#f08a3c", "스트럿(스프링+쇽업소버)"], ["#b4babe", "로어 암"], ["#5f9fe6", "차체"]] : [["#f08a3c", "어퍼 암(위시본 윗부분)"], ["#b4babe", "로어 암"], ["#5f9fe6", "차체"]] };
+}
+
+const REG = { car: makeCar, susp: makeSusp };
+const key = REG[q.get("m")] ? q.get("m") : "car";
+const model = REG[key]();
+scene.add(model.group);
+$("title").textContent = model.title; document.title = model.title + " · 3D";
+camera.position.set(...model.view.pos); controls.target.set(...model.view.target);
+controls.minDistance = 3; controls.maxDistance = 20;
+
+// ---- UI
+const modeKeys = Object.keys(model.MODES);
+let mode = modeKeys.includes(q.get("mode")) ? q.get("mode") : modeKeys[0];
+let t = 0, playing = !still.matches, ecs = false, travel = 0.0, last = 0, visible = true, travelAuto = true;
+const modesEl = $("modes"), extra = $("extra");
+modeKeys.forEach((k) => { const b = document.createElement("button"); b.textContent = model.MODES[k].name.split(" (")[0]; b.dataset.k = k; b.addEventListener("click", () => { mode = k; t = 0; sync(); }); modesEl.appendChild(b); });
+const play = document.createElement("button"); play.className = "pri"; extra.appendChild(play);
+play.addEventListener("click", () => { playing = !playing; if (playing) travelAuto = true; sync(); });
+let ecsBtn = null, slider = null;
+if (key === "car") {
+  ecsBtn = document.createElement("button"); ecsBtn.textContent = "전자제어 현가 ON"; ecsBtn.addEventListener("click", () => { ecs = !ecs; sync(); }); extra.appendChild(ecsBtn);
+} else {
+  slider = document.createElement("input"); slider.type = "range"; slider.min = "-15"; slider.max = "20"; slider.value = "0"; slider.setAttribute("aria-label", "바퀴 상하 이동량(cm)");
+  slider.addEventListener("input", () => { playing = false; travelAuto = false; travel = +slider.value / 100; sync(); }); extra.appendChild(slider);
+}
+function sync() {
+  [...modesEl.children].forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === mode)));
+  play.textContent = playing ? "일시정지" : "재생"; play.setAttribute("aria-pressed", "false");
+  if (ecsBtn) { const has = model.MODES[mode].ecs; ecsBtn.style.display = has ? "" : "none"; ecsBtn.setAttribute("aria-pressed", String(ecs)); ecsBtn.textContent = "전자제어 현가 " + (ecs ? "ON" : "OFF"); }
+  const lg = model.legendOf(mode); $("legend").innerHTML = lg.map(([c, n]) => '<span style="--c:' + c + '">' + n + "</span>").join("");
+  if (!playing || still.matches) draw();
+}
+function draw() {
+  const r = key === "car" ? model.apply(mode, t, ecs) : model.apply(mode, travel);
+  $("mname").textContent = r.name; $("msub").textContent = r.sub; $("val").innerHTML = r.read; $("explain").innerHTML = r.text;
+  if (slider) slider.value = String(Math.round(travel * 100));
+}
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage); resize();
+new IntersectionObserver((e) => { visible = e[e.length - 1].isIntersecting; }, { rootMargin: "80px" }).observe(stage);
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!visible) { last = now; return; }
+  const dt = last ? Math.min((now - last) / 1000, 0.05) : 0; last = now;
+  if (playing) {
+    t += dt;
+    if (key === "susp" && travelAuto) travel = 0.025 + 0.14 * Math.sin(t * 1.6) - 0.0;
+    draw();
+  }
+  controls.update(); renderer.render(scene, camera);
+}
+sync(); draw(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
