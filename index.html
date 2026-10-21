@@ -963,6 +963,7 @@ function render(){
   head();
   var TAB={home:1,stats:1,topics:1,study:1}, fadeIn=!!(S.pv&&S.pv!==S.view&&TAB[S.view]&&TAB[S.pv]);
   $app.innerHTML = S.view==='home'?home():S.view==='session'?session():S.view==='result'?result():S.view==='topics'?topicsView():S.view==='study'?studyView():S.view==='dg'?dgView():S.view==='ord'?ordView():S.view==='cmp'?cmpView():S.view==='calc'?calcView():S.view==='xresult'?xresult():stats();
+  if(S.view==='home'){ var hk=$app.querySelector('.areas')?'first':'dash'; if(S.hk&&S.hk!==hk) fadeIn=true; S.hk=hk; }
   $app.classList.remove('fade'); if(fadeIn){ void $app.offsetWidth; $app.classList.add('fade'); }
   var changed=S.pv!==S.view; S.pv=S.view;
   if(changed){ var h1=document.querySelector('#app h1'); announce(h1?h1.textContent:''); }
