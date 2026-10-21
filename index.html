@@ -305,6 +305,38 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .credits summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
 .credits p{margin:6px 0;line-height:1.5}
 .credits a{color:var(--accent)}
+/* 카드 상세 시트 */
+.cs{position:fixed;inset:0;z-index:40;background:rgba(15,17,16,.55);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .16s var(--ease)}
+.cs.in{opacity:1}
+.cs-in{width:min(720px,100%);max-height:92vh;overflow:auto;overscroll-behavior:contain;background:var(--ground);border-radius:var(--radius-card) var(--radius-card) 0 0;padding:0 0 calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(24px);transition:transform .2s var(--ease)}
+.cs.in .cs-in{transform:none}
+@media (min-width:760px){.cs{align-items:center;padding:24px}.cs-in{border-radius:var(--radius-card)}}
+.cs-h{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:var(--ground)}
+.cs-h h2{margin:0;font-size:20px;letter-spacing:-.01em}
+.cs-x{min-width:44px;min-height:44px;border-radius:var(--radius-control);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer}
+.cs-b{display:flex;flex-direction:column;gap:16px;padding:0 16px}
+.cs-b figure{margin:0;border-radius:var(--radius-row);overflow:hidden;background:var(--surface)}
+.cs-b figure img{display:block;width:100%;max-height:340px;object-fit:cover;cursor:zoom-in}
+.cs-b figure img.dg{object-fit:contain;background:#f4f3ef;padding:8px}
+.cs-b figcaption{padding:8px 12px;font-size:12px;color:var(--muted)}
+.cs-b h3{margin:0 0 8px;font-size:15px;font-weight:600}
+.cs-b ul.k{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.5}
+.cs-b ul.k li{position:relative;padding-left:14px}
+.cs-b ul.k li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cs-chips{display:flex;flex-wrap:wrap;gap:8px}
+.cs-chips .topic{min-height:44px;padding:0 14px;display:inline-flex;align-items:center;flex:0 0 auto}
+.cs-prog{display:flex;flex-direction:column;gap:8px;font-size:14px}
+.cs-links{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.cs-links a{color:var(--accent);text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
+.cs-qa{display:flex;flex-direction:column;gap:8px}
+.cs-qa details{background:var(--surface);border-radius:var(--radius-row);padding:10px 14px;font-size:14px;line-height:1.5}
+.cs-qa summary{cursor:pointer;min-height:32px}
+.cs-qa .a{margin-top:6px;color:var(--accent);font-weight:600}
+.cs-qa .m{margin-top:4px;color:var(--muted);font-size:13px}
+.pcard{cursor:pointer}
+.pcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pcard .more{margin:0 14px 14px;font-size:12px;color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.cs-in{transform:none;transition:none}}
 /* 그림 위 부품 탭 설명 · 값 조절 */
 .hsw{position:relative;width:100%;min-width:640px}
 .hsw .figwide{min-width:0}
@@ -1298,10 +1330,10 @@ function topicArea(ids){ var c={}; ids.forEach(function(i){ c[D[i][0]]=(c[D[i][0
 var PH={"catalyst": {"t": "Catalytic converter 20230510", "by": "Santeri Viinamäki", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=137828452", "via": "Wikimedia Commons"}, "exhaust": {"t": "Car exhaust pipe", "by": "Santeri Viinamäki", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0", "p": "https://commons.wikimedia.org/wiki/File:Car_exhaust_pipe.jpg", "via": "Wikimedia Commons"}, "injector": {"t": "Bosch common rail injector", "by": "Panoha", "lic": "CC BY-SA 3.0", "lu": "https://creativecommons.org/licenses/by-sa/3.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=8673522", "via": "Wikimedia Commons"}, "o2-sensor": {"t": "Lambda sond till volvo240 etc", "by": "Martin Olsson (mnemo)", "lic": "CC BY-SA 3.0", "lu": "https://creativecommons.org/licenses/by-sa/3.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=3357669", "via": "Wikimedia Commons"}, "strut": {"t": "Federbein", "by": "Bukk", "lic": "public domain", "lu": "https://creativecommons.org/publicdomain/mark/1.0/", "p": "https://commons.wikimedia.org/wiki/File:Federbein.JPG", "via": "Wikimedia Commons"}, "steering-pump": {"t": "Power Steering Pump; Mercedes-Benz 190E (W201)", "by": "nickjohnson", "lic": "CC BY 2.0", "lu": "https://creativecommons.org/licenses/by/2.0/", "p": "https://www.flickr.com/photos/81102241@N00/3547585764", "via": "Flickr"}, "torque-converter": {"t": "Torque-converter-cutbox-model", "by": "BerndB (저작자 추정)", "lic": "CC BY-SA 3.0", "lu": "https://creativecommons.org/licenses/by-sa/3.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=1423753", "via": "Wikimedia Commons"}, "disc-brake": {"t": "Alarm bells! (25681917701)", "by": "Riley from Christchurch, New Zealand", "lic": "CC BY 2.0", "lu": "https://creativecommons.org/licenses/by/2.0", "p": "https://commons.wikimedia.org/wiki/File:Alarm_bells!_(25681917701).jpg", "via": "Wikimedia Commons"}, "harness": {"t": "Wiring harness module box", "by": "Mkamara9540", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=36812979", "via": "Wikimedia Commons"}, "relay": {"t": "Socket for automotive relays", "by": "Retired electrician", "lic": "CC0", "lu": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/", "p": "https://commons.wikimedia.org/w/index.php?curid=126307368", "via": "Wikimedia Commons"}, "manifold": {"t": "AC Manifold Gauges checking refrigerant charge", "by": "Phyxter Home Services", "lic": "CC BY 2.0", "lu": "https://creativecommons.org/licenses/by/2.0/", "p": "https://www.flickr.com/photos/193473686@N05/51323310625", "via": "Flickr"}, "wiper": {"t": "2008-04-24 Windshield wiper parts", "by": "Ildar Sagdejev (Specious)", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=4428926", "via": "Wikimedia Commons"}};
 var MAPC={"기관": [["삼원촉매·산소센서", "catalyst", ["정화: HC · CO · NOx", "작동 400~800℃ (LOT 300℃)", "후단 센서: 바이너리", "지르코니아 · 티타니아"], "삼원촉매 겉모습"], ["배출가스", "exhaust", ["CO·HC: 농후할수록 ↑", "NOx: 약간 희박에서 ↑", "PM: 농후·저온에서 ↑", "λ > 1 = 희박"], "배기관 끝(테일파이프)"], ["증발가스·블로우바이", "@evap-control", ["캐니스터: HC 흡착", "PCSV: 듀티 제어", "FTPS: 탱크 압력 감지", "블로우바이 → PCV"], "증발가스 제어 도식"], ["디젤 연료·후처리", "injector", ["저압펌프 → 고압펌프 → 레일", "예비 · 주 · 사후 분사", "DPF: 차압센서로 재생", "SCR: 요소수 32.5%"], "커먼레일 인젝터"], ["센서·ECU", "o2-sensor", ["CKPS: 엔진 회전수", "홀센서 아닌 것: AFS", "APS1 : APS2 = 2 : 1", "연료 차단 시 피드백 정지"], "산소(람다) 센서"]], "섀시": [["전자제어 현가", "@ecs-control", ["급출발 노즈업: 안티 스쿼트", "제동 노즈다운: 다이브", "G센서: 롤 감지", "안티 요잉: 제어요소 아님"], "ECS 자세 제어 도식"], ["차체 진동", "strut", ["스프링 위: 바운싱 · 피칭 · 롤링", "스프링 아래: 휠 홉", "시미: 핸들이 떨림", "아래 질량: 감쇄가 빠름"], "스트럿(스프링·쇽업소버)과 브레이크 디스크"], ["조향장치", "steering-pump", ["MDPS: C 컬럼 · R 랙 · P 피니언", "유압식: 바이패스 · 반력 · 유량", "링기어 구동식은 없음", "회전력 센서 = 토크 센서"], "동력 조향 오일 펌프"], ["자동변속기", "torque-converter", ["스톨 낮음: 엔진 · 컨버터", "D만 높음: 원웨이 클러치", "R만 높음: 프런트 클러치", "스테이터: 토크 증대"], "토크 컨버터 단면 모형"], ["제동장치", "disc-brake", ["ABS 고장: 일반 제동은 정상", "휠센서 고장 시 ABS 중지", "공기 브레이크: 챔버 · 언로더", "보조: 엔진 · 배기 · 와전류"], "디스크 브레이크(디스크와 캘리퍼)"]], "전기": [["통신", "harness", ["LIN: 1선 · 단일 마스터", "CAN 종단저항: 합성 60Ω", "bus off: 스스로 이탈", "이모빌라이저: K-line"], "제어기와 배선 다발"], ["회로·계산", "relay", ["직렬 4·8·12Ω → 0.5A", "조도 = 광도 ÷ 거리²", "R = V ÷ I (12V·0.125A = 96Ω)", "접촉저항 전압강하 ≤ 0.2V"], "자동차용 릴레이 소켓"], ["공조(냉난방)", "manifold", ["압축기: 고온·고압 기체", "응축기: 고온·고압 액체", "증발기: 저온·저압 기체", "핀서모: 빙결 방지 (0~0.5℃)"], "에어컨 매니폴드 게이지"], ["바디 전장", "wiper", ["레인센서: 빛 · 일조 · 강우", "오토라이트: 조도 변할 때 사용", "윈도우: 방전 후 초기화 필요", "열선: 약 20분 후 OFF"], "와이퍼 부품"]]};
 function mapCards(a){
-  return '<div class="pcards">'+MAPC[a].map(function(c){
+  return '<div class="pcards">'+MAPC[a].map(function(c,n){
     var dg=c[1].charAt(0)==='@', src=dg?'diagrams/'+c[1].slice(1)+'.svg':'photos/'+c[1]+'.jpg', p=dg?null:PH[c[1]];
     var cap=p?'사진 · '+esc(p.by)+' · '+esc(p.lic):'도식';
-    return '<article class="pcard"><figure><img'+(dg?' class="dg"':'')+' data-zoom="1" loading="lazy" alt="'+esc(c[3])+'" src="'+src+'"></figure><div class="ph-c">'+esc(c[3])+' · '+cap+'</div><h3>'+esc(c[0])+'</h3><ul>'+c[2].map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('')+'</ul></article>';
+    return '<article class="pcard" tabindex="0" role="button" data-card="'+a+'|'+n+'" aria-label="'+esc(c[0])+' 자세히 보기"><figure><img'+(dg?' class="dg"':'')+' loading="lazy" alt="'+esc(c[3])+'" src="'+src+'"></figure><div class="ph-c">'+esc(c[3])+' · '+cap+'</div><h3>'+esc(c[0])+'</h3><ul>'+c[2].map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('')+'</ul><div class="more">눌러서 공부할 내용 보기 ›</div></article>';
   }).join('')+'</div>';
 }
 function creditsBox(){
@@ -1625,6 +1657,59 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
   function scan(){ pending=0; [].slice.call(document.querySelectorAll('img.figwide')).forEach(setup); }
   new MutationObserver(function(){ if(!pending) pending=setTimeout(scan,40); }).observe(document.body,{childList:true,subtree:true});
   scan();
+})();
+
+/* ===== 카드를 누르면 정보와 공부할 내용 ===== */
+(function(){
+  var CATFIX={'전자제어 현가':'전자제어 현가장치'};
+  var CLINK={
+    '차체 진동':[['차체 진동 · 자세 3D (바운싱 · 피칭 · 롤링 · 휠 홉)','interactive/3d.html?m=car'],['판 스프링 와인드업 · 트랙션 바 3D','interactive/3d.html?m=axle']],
+    '전자제어 현가장치':[['다이브 · 스쿼트 · 선회 롤 3D','interactive/3d.html?m=car&mode=dive'],['맥퍼슨 · 위시본 현가장치 3D','interactive/3d.html?m=susp']],
+    '제동장치':[['디스크 브레이크 · 유격','interactive/disc-brake-gap.html'],['디스크 브레이크 · 페달 유압','interactive/disc-brake-hydraulic.html']],
+    '디젤 연료·후처리':[['4행정 엔진 3D (분사 시기 이해)','interactive/four-stroke-3d.html']],
+    '센서·ECU':[['4행정 엔진 3D (크랭크·캠 각도)','interactive/four-stroke-3d.html']]
+  };
+  function close(now){
+    var o=document.getElementById('cs'); if(!o) return;
+    document.body.style.overflow='';
+    if(now){ o.remove(); return; }
+    o.removeAttribute('id'); o.classList.remove('in'); setTimeout(function(){ o.remove(); },170);
+  }
+  function open(area,n){
+    var c=MAPC[area][n]; if(!c) return;
+    close(true);
+    var cat=CATFIX[c[0]]||c[0], ids=[]; D.forEach(function(r,i){ if(r[1]===cat) ids.push(i); });
+    var mem=0; ids.forEach(function(i){ var r=DB.p[i]; if(r&&r.b>=4) mem++; });
+    var tops={}; Object.keys(DX).forEach(function(i){ if(ids.indexOf(+i)>-1) DX[i].forEach(function(k){ tops[k]=(tops[k]||0)+1; }); });
+    var keys=Object.keys(tops).filter(function(k){ return DXT[k]; }).sort(function(a,b){ return tops[b]-tops[a]; }).slice(0,8);
+    var dg=c[1].charAt(0)==='@', src=dg?'diagrams/'+c[1].slice(1)+'.svg':'photos/'+c[1]+'.jpg', p=dg?null:PH[c[1]];
+    var h='<div class="cs-in"><div class="cs-h"><h2>'+esc(c[0])+'</h2><button class="cs-x" type="button" aria-label="닫기">×</button></div><div class="cs-b">';
+    h+='<figure><img'+(dg?' class="dg"':'')+' data-zoom="1" alt="'+esc(c[3])+'" src="'+src+'"><figcaption>'+esc(c[3])+' · '+(p?'사진 · '+esc(p.by)+' · '+esc(p.lic):'도식')+' · 눌러서 크게 보기</figcaption></figure>';
+    h+='<div><h3>핵심 요약</h3><ul class="k">'+c[2].map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('')+'</ul></div>';
+    h+='<div class="cs-prog"><h3>내 학습 상태</h3><div>문제 '+ids.length+'개 · 외운 '+mem+'개</div><div class="bar" aria-hidden="true"><i style="width:'+(ids.length?mem/ids.length*100:0)+'%"></i></div><button class="btn pri" type="button" data-cstart="'+esc(cat)+'">이 분야 문제 풀기 ('+Math.min(10,ids.length)+'문제)</button></div>';
+    if(keys.length) h+='<div><h3>이 분야에서 공부할 구조도 · 해설</h3><div class="cs-chips">'+keys.map(function(k){ return '<button class="topic" type="button" data-topic="'+k+'"><b>'+esc(DXT[k])+'</b></button>'; }).join('')+'</div></div>';
+    var L=CLINK[cat]||[];
+    if(L.length) h+='<div><h3>움직이는 모형</h3><div class="cs-links">'+L.map(function(x){ return '<a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+' ▸</a>'; }).join('')+'</div></div>';
+    var qa=ids.slice(0,6);
+    if(qa.length) h+='<div class="cs-qa"><h3>대표 문제와 정답</h3>'+qa.map(function(i){ var r=D[i], ex=EXP[i]||r[6]; return '<details><summary>'+esc(r[3])+'</summary><div class="a">'+esc(String(r[4]).replace(/\n/g,' / '))+'</div>'+(ex?'<div class="m">'+esc(ex)+'</div>':'')+'</details>'; }).join('')+'</div>';
+    h+='</div></div>';
+    var o=document.createElement('div'); o.className='cs'; o.id='cs'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label',c[0]+' 상세');
+    o.innerHTML=h; document.body.appendChild(o); document.body.style.overflow='hidden';
+    setTimeout(function(){ o.classList.add('in'); },16);
+  }
+  document.addEventListener('click',function(e){
+    var card=e.target.closest('.pcard[data-card]');
+    if(card){ var m=card.getAttribute('data-card').split('|'); open(m[0],+m[1]); return; }
+    var cs=document.getElementById('cs'); if(!cs) return;
+    if(e.target===cs||e.target.closest('.cs-x')){ close(); return; }
+    var cb=e.target.closest('[data-cstart]');
+    if(cb){ var cat=cb.getAttribute('data-cstart'), ids=[]; D.forEach(function(r,i){ if(r[1]===cat) ids.push(i); }); close(true); S.topic=null; S.topicIds=shuffle(ids).slice(0,10); start('topic'); window.scrollTo(0,0); return; }
+    if(e.target.closest('[data-topic]')) close(true);
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') close();
+    if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.pcard[data-card]')){ e.preventDefault(); e.target.click(); }
+  });
 })();
 
 render();
