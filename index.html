@@ -337,6 +337,34 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .pcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pcard .more{margin:0 14px 14px;font-size:12px;color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.cs-in{transform:none;transition:none}}
+/* 첫 방문 홈 · 폰에서 그림 맞춤 · 다크 모드 그림 */
+.areas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.atile{display:flex;flex-direction:column;min-width:0;padding:0;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;cursor:pointer}
+.atile img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.atile div{padding:12px 16px 16px;display:flex;flex-direction:column;gap:2px}
+.atile b{font-size:17px}
+.atile span{font-size:13px;color:var(--muted)}
+.rowcard.rec{background:var(--accent-soft);border-color:var(--accent)}
+.more{border-radius:var(--radius-row);background:var(--raised);border:1px solid var(--border)}
+.more>summary{cursor:pointer;min-height:48px;padding:0 16px;display:flex;align-items:center;font-weight:600;font-size:14px}
+.more[open]>summary{border-bottom:1px solid var(--rule)}
+.more .stack{padding:12px}
+.hschips{display:none;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
+.hschips button{min-height:40px;padding:0 12px;font:inherit;font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-control);cursor:pointer}
+.hschips button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:640px){
+  .areas{grid-template-columns:minmax(0,1fr)}
+  .atile{flex-direction:row;align-items:center}
+  .atile img{width:112px;aspect-ratio:1/1;flex:0 0 auto}
+  .hsw,.figwide{min-width:0!important}
+  .hsw .hsb{display:none}
+  .hschips{display:flex}
+  .detail .wide{overflow-x:visible}
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) img[src$=".svg"],:root:not([data-theme="light"]) img[src^="data:image/svg"]{filter:invert(.9) hue-rotate(180deg)}
+}
+:root[data-theme="dark"] img[src$=".svg"],:root[data-theme="dark"] img[src^="data:image/svg"]{filter:invert(.9) hue-rotate(180deg)}
 /* 그림 위 부품 탭 설명 · 값 조절 */
 .hsw{position:relative;width:100%;min-width:640px}
 .hsw .figwide{min-width:0}
@@ -618,7 +646,7 @@ function fig(id){
   if(k&&DG[k]) h+='<img class="figimg" data-zoom="1" alt="도식" src="data:image/svg+xml;charset=utf-8,'+encodeURIComponent(DG[k])+'">';
   var xs=DX[id]||[];
   for(var j=0;j<xs.length;j++){ var f='diagrams/'+xs[j]+'.svg';
-    h+='<div class="detail"><div class="cap">구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></div>'; }
+    h+='<div class="detail"><div class="cap">구조도 · '+esc(DXT[xs[j]])+' <em>눌러서 크게 보기 · 부품·용어를 눌러 설명 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[xs[j]])+'" src="'+f+'"></div></div>'; }
   if(M3[id]) h+='<div class="detail m3"><div class="cap">3D 모형 <em>돌려 보며 이해하기</em></div><button class="btn" type="button" data-3d="'+M3[id][0]+'|'+M3[id][1]+'">3D로 보기</button></div>';
   if(IACT_OIL[id]) h+='<div class="detail"><div class="iact"><b>인터랙티브 도식</b><a href="interactive/oil-lubrication.html" target="_blank" rel="noopener">엔진 오일 윤활 · 온도 센서(부특성 저항) ▸</a></div></div>';
   if(IACT[id]) h+='<div class="detail"><div class="iact"><b>인터랙티브 도식</b><a href="interactive/disc-brake-gap.html" target="_blank" rel="noopener">디스크 브레이크 · 유격 ▸</a><a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></div>';
@@ -753,8 +781,29 @@ function head(){
   var cur=(S.view==='stats')?'stats':(S.view==='topics'||S.view==='study')?'topics':'home';
   for(var i=0;i<b.length;i++) b[i].setAttribute('aria-current', String(b[i].dataset.v===cur));
 }
+function homeFirst(c){
+  var cnt={'기관':0,'섀시':0,'전기':0}; D.forEach(function(r){ cnt[r[0]]++; });
+  var A=[['기관','catalyst','삼원촉매 · 디젤 · 센서 · 배출가스'],['섀시','strut','현가 · 조향 · 변속기 · 제동'],['전기','harness','통신 · 회로 · 공조 · 바디 전장']];
+  var h='<div class="col"><div class="greet"><div><h1>'+c.total+'문제로 시작합니다.</h1><p>처음이라면 사진과 구조도로 개념을 먼저 보고, 문제를 푸는 순서를 추천합니다.</p></div>';
+  h+='<button class="btn pri" data-m="today">오늘의 학습 시작</button></div>';
+  h+='<div class="areas">'+A.map(function(a){ return '<button class="atile" data-v="topics"><img src="photos/'+a[1]+'.jpg" alt="'+a[0]+' 영역 대표 사진" loading="eager"><div><b>'+a[0]+' · '+cnt[a[0]]+'문제</b><span>'+a[2]+'</span></div></button>'; }).join('')+'</div>';
+  h+='<section class="panel s12"><div class="panel-h"><h2>무엇부터 할까요</h2></div><div class="trio">';
+  h+='<button class="rowcard rec" data-v="topics"><b>주제별 공부</b><span>처음이라면 추천. 사진과 구조도로 개념을 먼저 보고 문제를 풉니다</span></button>';
+  h+='<button class="rowcard" data-m="today"><b>오늘의 학습</b><span>새 문제 15개를 풀고 바로 해설을 봅니다</span></button>';
+  h+='<button class="rowcard" data-m="exam"><b>모의시험</b><span>전 영역 40문제, 끝나면 100점 만점 점수</span></button>';
+  h+='</div><details class="more"><summary>다른 방식 5가지 더 보기</summary><div class="stack">';
+  h+='<button class="rowcard" data-m="dg"><b>구조도 이름 맞히기</b><span>가려진 부품 이름을 짝지어 위치와 역할을 익힙니다</span></button>';
+  h+='<button class="rowcard" data-m="ord"><b>순서 맞추기</b><span>냉방 사이클, 연료 공급 같은 흐름을 순서대로 놓습니다</span></button>';
+  h+='<button class="rowcard" data-m="cmp"><b>헷갈리는 짝 비교</b><span>바운싱과 피칭, LIN과 CAN처럼 자주 섞이는 개념을 가립니다</span></button>';
+  h+='<button class="rowcard" data-m="calc"><b>계산 단계 풀이</b><span>공식 고르기, 값 대입, 답 순서로 한 단계씩 풉니다</span></button>';
+  h+='<button class="rowcard" data-m="notation"><b>표기 훈련</b><span>주관식만 직접 타이핑. 답안 표기를 익힙니다</span></button>';
+  h+='</div></details></section>';
+  h+='<div class="tip" style="padding:8px 0">풀기 시작하면 이곳에 복습 대기·숙련도 현황이 생깁니다. 기록은 이 브라우저에만 저장됩니다. 사진 출처는 공부 탭 맨 아래에 있습니다.</div></div>';
+  return h;
+}
 function home(){
   var c=counts(), t0=dayStart(), cats=['전체','기관','섀시','전기'], p=pool();
+  if(!Object.keys(DB.p).length && S.cat==='전체') return homeFirst(c);
   var seen=0, mast=0;
   p.forEach(function(i){ var r=DB.p[i]; if(r){ seen++; if(r.b>=4) mast++; } });
   var scope=S.cat==='전체'?'':S.cat+' 영역 ';
@@ -1310,7 +1359,7 @@ function ordView(){
     h+='<div class="row"><button class="btn pri grow" data-ocheck="1"'+(c.ans.length===c.it.s.length?'':' disabled')+'>확인</button></div>';
   } else {
     h+='<div class="res '+(c.ok?'ok':'no')+'">'+(c.ok?ICON.ok:ICON.no)+'<h3>'+(c.ok?'순서가 맞습니다':'순서가 다릅니다')+'</h3>'+(c.ok?'':'<div class="key">'+c.it.s.map(esc).join(' → ')+'</div>')+'</div>';
-    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[c.it.fig]||c.it.t)+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(c.it.t)+'" src="diagrams/'+c.it.fig+'.svg"></div></div></div>';
+    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[c.it.fig]||c.it.t)+' <em>눌러서 크게 보기 · 부품·용어를 눌러 설명 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(c.it.t)+'" src="diagrams/'+c.it.fig+'.svg"></div></div></div>';
     h+='<div class="row"><button class="btn pri grow" data-onext="1">다음</button></div>';
   }
   return h+'</div><button class="link" data-quit>그만하기</button></div>';
@@ -1365,7 +1414,7 @@ function topicsView(){
 function studyView(){
   var k=S.topic, ids=topicIds(k);
   var h='<div class="col narrow" style="padding-top:12px"><button class="link" data-v="topics" style="padding:0">‹ 주제 목록</button><h1 class="ttl" style="margin-top:12px">'+esc(DXT[k])+'</h1>';
-  h+='<div class="detail"><div class="cap">구조도 <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k])+'" src="diagrams/'+k+'.svg"></div></div>';
+  h+='<div class="detail"><div class="cap">구조도 <em>눌러서 크게 보기 · 부품·용어를 눌러 설명 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k])+'" src="diagrams/'+k+'.svg"></div></div>';
   h+='<section class="panel"><div class="panel-h"><h2>핵심 정리</h2></div><ul class="points" id="pts"><li class="tip">불러오는 중…</li></ul></section>';
   h+='<div class="row"><button class="btn pri grow" data-tstart="1">이 주제 문제 풀기 ('+Math.min(10,ids.length)+'문제)</button></div></div>';
   getSvg(k).then(function(text){
@@ -1457,7 +1506,7 @@ function cmpView(){
   if(q.ans){
     var ok=q.ans===it.side;
     h+='<div class="res '+(ok?'ok':'no')+'">'+(ok?ICON.ok:ICON.no)+'<h3>'+(ok?'맞았습니다':'정답은 '+esc(p[it.side])+'입니다')+'</h3><div class="tip">'+esc(it.s)+' → '+esc(p[it.side])+'</div></div>';
-    if(!ok) h+=p.f.map(function(k){ return '<div class="detail"><div class="cap">구조도 · '+esc(DXT[k]||k)+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k]||k)+'" src="diagrams/'+k+'.svg"></div></div>'; }).join('');
+    if(!ok) h+=p.f.map(function(k){ return '<div class="detail"><div class="cap">구조도 · '+esc(DXT[k]||k)+' <em>눌러서 크게 보기 · 부품·용어를 눌러 설명 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(DXT[k]||k)+'" src="diagrams/'+k+'.svg"></div></div>'; }).join('');
     h+='<div class="row"><button class="btn pri grow" data-cnext="1">다음 <kbd>Enter</kbd></button></div>';
   }
   return h+'</div><button class="link" data-quit>그만하기</button></div>';
@@ -1521,7 +1570,7 @@ function calcView(){
     if(c.wrong.length) h+='<div class="tip" style="color:var(--negative)">아닙니다. 다시 생각해 보세요.</div>';
   } else {
     h+='<div class="res '+(c.mistakes?'fmt':'ok')+'">'+(c.mistakes?ICON.fmt:ICON.ok)+'<h3>'+(c.mistakes?'풀었지만 '+c.mistakes+'번 틀렸습니다':'한 번에 맞혔습니다')+'</h3><div class="key">'+esc(it.s[it.s.length-1][1][it.s[it.s.length-1][2]])+'</div></div>';
-    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[it.fig]||it.t)+' <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(it.t)+'" src="diagrams/'+it.fig+'.svg"></div></div></div>';
+    h+='<div class="more"><div class="detail"><div class="cap">구조도 · '+esc(DXT[it.fig]||it.t)+' <em>눌러서 크게 보기 · 부품·용어를 눌러 설명 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+esc(it.t)+'" src="diagrams/'+it.fig+'.svg"></div></div></div>';
     h+='<div class="row"><button class="btn pri grow" data-knext="1">다음 <kbd>Enter</kbd></button></div>';
   }
   return h+'</div><button class="link" data-quit>그만하기</button></div>';
@@ -1649,6 +1698,13 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
         });
         wrap.appendChild(btn);
       });
+      var chipBox=document.createElement('div'); chipBox.className='hschips'; chipBox.setAttribute('aria-label','그림 속 부품 · 용어');
+      [].slice.call(wrap.querySelectorAll('.hsb')).forEach(function(bt){
+        var cb2=document.createElement('button'); cb2.type='button'; cb2.textContent=bt.getAttribute('aria-label').replace(' 설명 보기',''); cb2.setAttribute('aria-pressed','false');
+        cb2.addEventListener('click',function(){ var was=bt.classList.contains('on'); bt.click(); [].slice.call(chipBox.children).forEach(function(x){ x.setAttribute('aria-pressed','false'); }); if(!was) cb2.setAttribute('aria-pressed','true'); });
+        chipBox.appendChild(cb2);
+      });
+      if(chipBox.children.length) detail.appendChild(chipBox);
       detail.addEventListener('click',function(e){ var x=e.target.closest('.hsx'); if(x){ var c=x.parentNode; c.remove(); [].slice.call(wrap.querySelectorAll('.hsb.on')).forEach(function(b){ b.classList.remove('on'); }); } });
       sim(detail,key,wrap);
     }).catch(function(){});
