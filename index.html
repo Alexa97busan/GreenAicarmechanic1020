@@ -1249,7 +1249,8 @@ function topicsView(){
   Object.keys(DXT).forEach(function(k){ var ids=topicIds(k); if(!ids.length) return; by[topicArea(ids)].push({k:k,ids:ids}); });
   var h='<div class="col"><div class="greet"><div><h1>주제별 공부</h1><p>구조도를 먼저 보고 핵심을 읽은 뒤, 그 주제의 문제를 풉니다. '+Object.keys(DXT).length+'개 주제</p></div></div>';
   ['기관','섀시','전기'].forEach(function(a){
-    h+='<section class="panel"><div class="panel-h"><h2>'+a+'</h2><span class="chip-n">'+by[a].length+'개 주제</span></div><div class="topics">';
+    h+='<section class="panel"><div class="panel-h"><h2>'+a+'</h2><span class="chip-n">'+by[a].length+'개 주제</span></div>'
+      +'<div class="detail"><div class="cap">'+a+' 한 장 요약 · 손그림 <em>눌러서 크게 보기</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+a+' 한 장 요약 지도" src="maps/'+{'기관':'engine','섀시':'chassis','전기':'electric'}[a]+'.png"></div></div><div class="topics">';
     by[a].forEach(function(x){
       var m=0; x.ids.forEach(function(i){ var r=DB.p[i]; if(r&&r.b>=4) m++; });
       h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="width:'+(m/x.ids.length*100)+'%"></i></div></button>';
