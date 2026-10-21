@@ -18,7 +18,7 @@
   --radius-card:20px; --radius-row:14px; --radius-control:999px;
   --gap:16px; --pad:20px; --control-height:38px; --row-height:63px;
   --font:"Instrument Sans","IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --ease:cubic-bezier(0.23,1,0.32,1);
+  --ease:cubic-bezier(0.23,1,0.32,1); --ease-drawer:cubic-bezier(0.32,0.72,0,1);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   color-scheme:dark;
@@ -113,7 +113,7 @@ input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 
 /* meters */
 .bar{height:6px;background:var(--rule);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px}
+.bar i{display:block;height:100%;width:100%;background:var(--accent);border-radius:3px;transform-origin:left center;transform:scaleX(var(--p,0))}
 .bar.ink i{background:var(--text)}
 .meter{display:grid;grid-template-columns:72px minmax(0,1fr) 92px;gap:12px;align-items:center;font-size:13px;min-height:36px}
 .meter b{font-weight:500}
@@ -138,7 +138,7 @@ input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .res.ok{background:var(--ok-bg);color:var(--ok-ink)} .res.fmt{background:var(--warn-bg);color:var(--warn-ink)} .res.no{background:var(--no-bg);color:var(--no-ink)}
 .res .ic{grid-row:1/6;grid-column:1;width:22px;height:22px;margin-top:2px}
 .res>:not(.ic){grid-column:2}
-.ic path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .26s .04s var(--ease) forwards}
+.ic path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .16s .02s var(--ease) forwards}
 .res h3{margin:0;font-size:14px;font-weight:600}
 .key{font-size:16px;font-weight:600;white-space:pre-line;overflow-wrap:anywhere}
 .tip{font-size:13px;color:var(--muted)}
@@ -284,7 +284,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 @media (max-width:560px){.trio.five{grid-template-columns:minmax(0,1fr)}.cmp .btn{min-height:56px;font-size:16px}}
 /* 다듬기: 풀이 화면 */
 .bar{height:8px;border-radius:4px}
-.bar i{transition:width .3s var(--ease)}
+.bar i{transition:transform .2s var(--ease)}
 .q{font-size:24px;line-height:1.5}
 .link{min-height:40px;padding:0 14px;margin-left:-14px;border-radius:var(--radius-row);text-decoration:none;display:inline-flex;align-items:center;transition:background-color .14s var(--ease),color .14s var(--ease)}
 .link:active{background:var(--surface)}
@@ -308,10 +308,10 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 /* 카드 상세 시트 */
 .cs{position:fixed;inset:0;z-index:40;background:rgba(15,17,16,.55);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .16s var(--ease)}
 .cs.in{opacity:1}
-.cs-in{width:min(720px,100%);max-height:92vh;overflow:auto;overscroll-behavior:contain;background:var(--ground);border-radius:var(--radius-card) var(--radius-card) 0 0;padding:0 0 calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(24px);transition:transform .2s var(--ease)}
-.cs.in .cs-in{transform:none}
-@media (min-width:760px){.cs{align-items:center;padding:24px}.cs-in{border-radius:var(--radius-card)}}
-.cs-h{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:var(--ground)}
+.cs-in{width:min(720px,100%);max-height:92vh;overflow:auto;overscroll-behavior:contain;background:var(--ground);border-radius:var(--radius-card) var(--radius-card) 0 0;padding:0 0 calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .2s var(--ease);touch-action:pan-y}
+.cs.in .cs-in{transform:none;transition:transform .32s var(--ease-drawer)}
+@media (min-width:760px){.cs{align-items:center;padding:24px}.cs-in{border-radius:var(--radius-card);transform:translateY(16px) scale(.98)}}
+.cs-h{touch-action:none;position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:var(--ground)}
 .cs-h h2{margin:0;font-size:20px;letter-spacing:-.01em}
 .cs-x{min-width:44px;min-height:44px;border-radius:var(--radius-control);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;cursor:pointer}
 .cs-b{display:flex;flex-direction:column;gap:16px;padding:0 16px}
@@ -376,6 +376,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 #tres .topic{min-height:44px;flex:0 0 auto;display:inline-flex;gap:8px;align-items:center;padding:0 14px}
 .more .topics{padding:12px}
 .more .iact{padding:12px 14px 14px}
+/* 새 요소 눌림 반응 · 움직임 정리 */
+.pcard,.atile,.hschips button,.cs-x{transition:transform .1s var(--ease),border-color .15s var(--ease)}
+.pcard:active,.atile:active{transform:scale(.98)}
+.hschips button:active,.cs-x:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.pcard:hover,.atile:hover{border-color:var(--control)}}
+.hsc{animation:rise .16s var(--ease)}
 /* 그림 위 부품 탭 설명 · 값 조절 */
 .hsw{position:relative;width:100%;min-width:640px}
 .hsw .figwide{min-width:0}
@@ -401,7 +407,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 @media (prefers-reduced-motion:reduce){
   .bar i{transition:none}
   .shake{animation:none!important}
-  .res,.ans{animation:fadein .15s ease-out}
+  .res,.ans,.hsc{animation:fadein .15s ease-out}
+  .pcard:active,.atile:active,.hschips button:active,.cs-x:active{transform:none}
   .btn:active,.chip:active,.rowcard:active,.opts .btn:active,.mt-i:active,.topic:active,.cmp .btn:active,.seq-slot.filled:active,nav button:active{transform:none}
   .lb .hint{transition:none}
   .ic path{stroke-dasharray:none;stroke-dashoffset:0;animation:none}
@@ -851,7 +858,7 @@ function home(){
   areas.forEach(function(a){
     var tot=0,s=0,m=0,r=0,w=0;
     D.forEach(function(it,i){ if(it[0]!==a) return; tot++; var q=DB.p[i]; if(q){ s++; r+=q.r; w+=q.w; if(q.b>=4) m++; } });
-    h+='<div class="meter"><b>'+a+'</b><div class="bar" aria-hidden="true"><i style="width:'+(tot?m/tot*100:0)+'%"></i></div><code><em>'+m+'</em> / '+tot+(r+w?' · '+Math.round(r/(r+w)*100)+'%':' · –')+'</code></div>';
+    h+='<div class="meter"><b>'+a+'</b><div class="bar" aria-hidden="true"><i style="--p:'+((tot?m/tot*100:0))/100+'"></i></div><code><em>'+m+'</em> / '+tot+(r+w?' · '+Math.round(r/(r+w)*100)+'%':' · –')+'</code></div>';
   });
   h+='</div><div class="tip">오른쪽 끝은 정답률입니다. 아직 푼 기록이 없으면 –로 표시합니다.</div></section>';
   var bx=[0,0,0,0,0,0], due=[0,0,0,0,0,0]; Object.keys(DB.p).forEach(function(k){ var q=DB.p[k]; bx[q.b]++; if(q.d<=t0) due[q.b]++; });
@@ -879,7 +886,7 @@ function session(){
   var tl={m:op?'4지선다':'기억 카드',o:'OX',l:'선긋기',s:'주관식'}[type];
   var h='<div class="col narrow" style="padding-top:28px">';
   h+='<div class="meta"><span>'+MODES[S.mode]+'</span><span>'+Math.min(S.i+1,S.queue.length)+' / '+S.queue.length+'</span></div>';
-  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+S.queue.length+'" aria-valuenow="'+S.i+'"><i style="width:'+(S.i/S.queue.length*100)+'%"></i></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+S.queue.length+'" aria-valuenow="'+S.i+'"><i style="--p:'+((S.i/S.queue.length*100))/100+'"></i></div>';
   h+='<div class="card" id="card"><div class="tag"><span>'+esc(it[0])+' · '+esc(it[1])+'</span><em>'+tl+'</em></div>';
   h+='<h1 class="q">'+esc(it[3])+'</h1>';
   if(S.stage==='why'){ h+=whyHTML(id); }
@@ -936,12 +943,12 @@ function stats(){
   h+='<div class="tile s3"><span>외운 문제</span><b>'+mast+'</b><i>7일 이상 간격으로 두 번 연속 정답</i></div>';
   h+='<div class="tile s3"><span>전체 정답률</span><b>'+((R+W)?Math.round(R/(R+W)*100)+'<small>%</small>':'–')+'</b><i>'+fmt(R+W)+'번 풀어서 '+fmt(R)+'번 정답</i></div></div>';
   h+='<div class="grid"><section class="panel s6"><div class="panel-h"><h2>영역별</h2><span class="chip-n">외운 문제 / 전체 · 정답률</span></div><div>';
-  per.forEach(function(x){ h+='<div class="meter"><b>'+x.c+'</b><div class="bar" aria-hidden="true"><i style="width:'+(x.tot?x.m/x.tot*100:0)+'%"></i></div><code><em>'+x.m+'</em> / '+x.tot+' · '+(x.acc===null?'–':x.acc+'%')+'</code></div>'; });
+  per.forEach(function(x){ h+='<div class="meter"><b>'+x.c+'</b><div class="bar" aria-hidden="true"><i style="--p:'+((x.tot?x.m/x.tot*100:0))/100+'"></i></div><code><em>'+x.m+'</em> / '+x.tot+' · '+(x.acc===null?'–':x.acc+'%')+'</code></div>'; });
   h+='</div></section>';
   var bx=[0,0,0,0,0,0], due=0; Object.keys(DB.p).forEach(function(k){ bx[DB.p[k].b]++; if(DB.p[k].d<=t) due++; });
   var names=['새로 틀림','1일 뒤','3일 뒤','7일 뒤','14일 뒤','30일 뒤'], mx=Math.max.apply(null,bx.concat([1]));
   h+='<section class="panel s6"><div class="panel-h"><h2>복습 간격</h2><span class="chip-n">복습 대기 '+due+'</span></div><div>';
-  bx.forEach(function(n,i){ h+='<div class="meter"><b style="white-space:nowrap">'+names[i]+'</b><div class="bar ink" aria-hidden="true"><i style="width:'+(n/mx*100)+'%"></i></div><code><em>'+n+'</em></code></div>'; });
+  bx.forEach(function(n,i){ h+='<div class="meter"><b style="white-space:nowrap">'+names[i]+'</b><div class="bar ink" aria-hidden="true"><i style="--p:'+((n/mx*100))/100+'"></i></div><code><em>'+n+'</em></code></div>'; });
   h+='</div></section></div>';
   var weak=Object.keys(DB.p).filter(function(k){return DB.p[k].w>0;}).sort(function(a,b){return (DB.p[b].w*2+DB.p[b].n)-(DB.p[a].w*2+DB.p[a].n);}).slice(0,8);
   h+='<section class="panel"><div class="panel-h"><h2>자주 틀리는 문제</h2><span class="chip-n">최대 8개</span></div>';
@@ -1012,7 +1019,8 @@ document.addEventListener('click',function(e){
   b.replaceWith(f);
 });
 (function(){
-  var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var rmq=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)'), RM=!!(rmq&&rmq.matches);
+  if(rmq&&rmq.addEventListener) rmq.addEventListener('change',function(){ RM=rmq.matches; });
   var K=273, C=33;               /* 임계감쇠 스프링 (response ≈ 0.38s) */
   var MAXS=6, DZ=2.6;            /* 최대 배율, 두 번 탭 확대 배율 */
   var V=null;
@@ -1322,7 +1330,7 @@ function dgView(){
   var q=S.dq, h='<div class="col narrow" style="padding-top:28px">';
   if(q.fail) return h+'<div class="card"><h1 class="q">구조도를 불러오지 못했습니다</h1><p class="tip">인터넷 주소(https)로 열어야 구조도를 불러올 수 있습니다.</p><button class="btn grow" data-go="home">처음으로</button></div></div>';
   h+='<div class="meta"><span>'+MODES.dg+'</span><span>'+Math.min(q.i+1,q.keys.length)+' / '+q.keys.length+'</span></div>';
-  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.keys.length+'" aria-valuenow="'+q.i+'"><i style="width:'+(q.i/q.keys.length*100)+'%"></i></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.keys.length+'" aria-valuenow="'+q.i+'"><i style="--p:'+((q.i/q.keys.length*100))/100+'"></i></div>';
   if(!q.item) return h+'<div class="card"><p class="tip">구조도를 불러오는 중…</p></div></div>';
   var it=q.item, title=DXT[it.key];
   h+='<div class="card"><div class="tag"><span>'+esc(title)+'</span><em>구조도</em></div>';
@@ -1368,7 +1376,7 @@ function mkOrd(){
 function ordView(){
   var q=S.oq, c=q.cur, h='<div class="col narrow" style="padding-top:28px">';
   h+='<div class="meta"><span>'+MODES.ord+'</span><span>'+Math.min(q.i+1,q.items.length)+' / '+q.items.length+'</span></div>';
-  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="width:'+(q.i/q.items.length*100)+'%"></i></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="--p:'+((q.i/q.items.length*100))/100+'"></i></div>';
   h+='<div class="card"><div class="tag"><span>'+esc(c.it.t)+'</span><em>순서</em></div><h1 class="q">알맞은 순서대로 눌러 놓으세요.</h1>';
   h+='<div class="seq">'+c.it.s.map(function(_,k){
     var v=c.ans[k], has=v!==undefined, cls='seq-slot'+(has?' filled':'')+(c.checked?(v===k?' ok':' no'):'');
@@ -1420,7 +1428,7 @@ function topicsView(){
   h+='<details class="more"><summary>'+cur+' 주제 전체 보기 ('+by[cur].length+'개)</summary><div class="topics">';
   by[cur].forEach(function(x){
     var m=0; x.ids.forEach(function(i){ var r=DB.p[i]; if(r&&r.b>=4) m++; });
-    h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="width:'+(m/x.ids.length*100)+'%"></i></div></button>';
+    h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="--p:'+((m/x.ids.length*100))/100+'"></i></div></button>';
   });
   h+='</div></details></section>';
   h+='<details class="more"><summary>움직이는 구조 모형 (7개)</summary><div class="iact">'
@@ -1433,7 +1441,7 @@ function topicsView(){
     +'<a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></details>';
   return h+creditsBox()+'</div>';
 }
-document.addEventListener('click',function(e){ var b=e.target.closest('[data-sarea]'); if(!b) return; S.sarea=b.getAttribute('data-sarea'); render(); });
+document.addEventListener('click',function(e){ var b=e.target.closest('[data-sarea]'); if(!b) return; S.sarea=b.getAttribute('data-sarea'); render(); $app.classList.remove('fade'); void $app.offsetWidth; $app.classList.add('fade'); });
 document.addEventListener('input',function(e){
   if(e.target.id!=='tsearch') return;
   var q=e.target.value.replace(/\s+/g,'').toLowerCase(), out=document.getElementById('tres'); if(!out) return;
@@ -1526,7 +1534,7 @@ function startCmp(){
 function cmpView(){
   var q=S.cq, it=q.items[q.i], p=CMP[it.p];
   var h='<div class="col narrow" style="padding-top:28px"><div class="meta"><span>'+MODES.cmp+'</span><span>'+(q.i+1)+' / '+q.items.length+'</span></div>';
-  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="width:'+(q.i/q.items.length*100)+'%"></i></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="--p:'+((q.i/q.items.length*100))/100+'"></i></div>';
   h+='<div class="card"><div class="tag"><span>'+esc(p.a)+' · '+esc(p.b)+'</span><em>짝 비교</em></div><h1 class="stmt">'+esc(it.s)+'</h1><div class="mt-note">이 설명은 어느 쪽일까요?</div>';
   var sides=q.flip?['b','a']:['a','b'];
   h+='<div class="cmp">'+sides.map(function(sd){
@@ -1583,7 +1591,7 @@ function mkCalc(){
 function calcView(){
   var q=S.kq, c=q.cur, it=c.it, h='<div class="col narrow" style="padding-top:28px">';
   h+='<div class="meta"><span>'+MODES.calc+'</span><span>'+(q.i+1)+' / '+q.items.length+'</span></div>';
-  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="width:'+(q.i/q.items.length*100)+'%"></i></div>';
+  h+='<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.items.length+'" aria-valuenow="'+q.i+'"><i style="--p:'+((q.i/q.items.length*100))/100+'"></i></div>';
   h+='<div class="card"><div class="tag"><span>'+esc(it.t)+'</span><em>계산</em></div><h1 class="q">'+esc(it.q)+'</h1>';
   h+='<div class="given">'+it.g.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>';
   h+='<div class="steps">';
@@ -1760,7 +1768,7 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
     var o=document.getElementById('cs'); if(!o) return;
     document.body.style.overflow='';
     if(now){ o.remove(); return; }
-    var op=o._op; o.removeAttribute('id'); o.classList.remove('in'); setTimeout(function(){ o.remove(); },170);
+    var op=o._op; o.removeAttribute('id'); o.classList.remove('in'); setTimeout(function(){ o.remove(); },200);
     if(op&&document.body.contains(op)) op.focus();
   }
   function open(area,n){
@@ -1774,7 +1782,7 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
     var h='<div class="cs-in"><div class="cs-h"><h2>'+esc(c[0])+'</h2><button class="cs-x" type="button" aria-label="닫기">×</button></div><div class="cs-b">';
     h+='<figure><img'+(dg?' class="dg"':'')+' data-zoom="1" alt="'+esc(c[3])+'" src="'+src+'"><figcaption>'+esc(c[3])+' · '+(p?'사진 · '+esc(p.by)+' · '+esc(p.lic):'도식')+' · 눌러서 크게 보기</figcaption></figure>';
     h+='<div><h3>핵심 요약</h3><ul class="k">'+c[2].map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('')+'</ul></div>';
-    h+='<div class="cs-prog"><h3>내 학습 상태</h3><div>문제 '+ids.length+'개 · 외운 '+mem+'개</div><div class="bar" aria-hidden="true"><i style="width:'+(ids.length?mem/ids.length*100:0)+'%"></i></div><button class="btn pri" type="button" data-cstart="'+esc(cat)+'">이 분야 문제 풀기 ('+Math.min(10,ids.length)+'문제)</button></div>';
+    h+='<div class="cs-prog"><h3>내 학습 상태</h3><div>문제 '+ids.length+'개 · 외운 '+mem+'개</div><div class="bar" aria-hidden="true"><i style="--p:'+((ids.length?mem/ids.length*100:0))/100+'"></i></div><button class="btn pri" type="button" data-cstart="'+esc(cat)+'">이 분야 문제 풀기 ('+Math.min(10,ids.length)+'문제)</button></div>';
     if(keys.length) h+='<div><h3>이 분야에서 공부할 구조도 · 해설</h3><div class="cs-chips">'+keys.map(function(k){ return '<button class="topic" type="button" data-topic="'+k+'"><b>'+esc(DXT[k])+'</b></button>'; }).join('')+'</div></div>';
     var L=CLINK[cat]||[];
     if(L.length) h+='<div><h3>움직이는 모형</h3><div class="cs-links">'+L.map(function(x){ return '<a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+' ▸</a>'; }).join('')+'</div></div>';
@@ -1783,6 +1791,15 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
     h+='</div></div>';
     var op0=document.activeElement; var o=document.createElement('div'); o._op=op0; o.className='cs'; o.id='cs'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label',c[0]+' 상세');
     o.innerHTML=h; document.body.appendChild(o); document.body.style.overflow='hidden';
+    (function(){
+      var sh=o.querySelector('.cs-in'), hd=o.querySelector('.cs-h'), y0=0, dy=0, t0=0, drag=false;
+      hd.addEventListener('pointerdown',function(e){ if(e.target.closest('.cs-x')||(e.pointerType==='mouse'&&e.button!==0)) return; drag=true; y0=e.clientY; dy=0; t0=e.timeStamp; sh.style.transition='none'; try{ hd.setPointerCapture(e.pointerId); }catch(_){} });
+      hd.addEventListener('pointermove',function(e){ if(!drag) return; dy=Math.max(0,e.clientY-y0); sh.style.transform='translateY('+dy+'px)'; });
+      function end(e){ if(!drag) return; drag=false; var v=dy/Math.max(1,e.timeStamp-t0);
+        if(dy>110||v>0.5){ sh.style.transition='transform .2s var(--ease)'; sh.style.transform='translateY(100%)'; setTimeout(function(){ close(true); },190); }
+        else { sh.style.transition='transform .24s var(--ease-drawer)'; sh.style.transform=''; setTimeout(function(){ sh.style.transition=''; },260); } }
+      hd.addEventListener('pointerup',end); hd.addEventListener('pointercancel',end);
+    })();
     setTimeout(function(){ o.classList.add('in'); var xb=o.querySelector('.cs-x'); if(xb) xb.focus(); },16);
   }
   document.addEventListener('click',function(e){

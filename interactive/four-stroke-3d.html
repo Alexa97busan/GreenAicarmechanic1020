@@ -194,6 +194,8 @@ function model(th) {
 const gasColors = [new THREE.Color(0x5aa0e6), new THREE.Color(0x8fb8e8), new THREE.Color(0xf08a3c), new THREE.Color(0x8a8f8c)];
 const names = ["흡입 행정", "압축 행정", "폭발(동력) 행정", "배기 행정"];
 const tmp = new THREE.Color();
+const memo = {};
+const setT = (id, v, cls) => { const k = id + (cls || ""); if (memo[k] === v + (cls || "")) return; memo[k] = v + (cls || ""); const e = $(id); e.textContent = v; if (cls !== undefined) e.className = cls; };
 function apply(th) {
   const m = model(th);
   piston.position.y = m.yTop;
@@ -218,15 +220,15 @@ function apply(th) {
   camEx.rotation.z = (th - 620) * 0.5 * rad;
   plugTip.material.color.set(m.spark ? 0xfff2a8 : 0x777777);
   plugTip.scale.setScalar(m.spark ? 2.2 : 1);
-  $("stroke").textContent = names[m.stroke];
-  $("angle").textContent = "크랭크 " + Math.round(th) + "° · 캠축 " + Math.round(th / 2) + "°";
+  setT("stroke", names[m.stroke]);
+  setT("angle", "크랭크 " + Math.round(th) + "° · 캠축 " + Math.round(th / 2) + "°");
   const vin = $("vin"), vex = $("vex"), vsp = $("vsp");
   const oi = m.liftIn > 0.02, oe = m.liftEx > 0.02;
-  vin.textContent = oi ? "열림" : "닫힘"; vin.className = oi ? "on" : "";
-  vex.textContent = oe ? "열림" : "닫힘"; vex.className = oe ? "on" : "";
-  vsp.textContent = m.spark ? "스파크" : "—"; vsp.className = m.spark ? "on" : "";
+  setT("vin", oi ? "열림" : "닫힘", oi ? "on" : "");
+  setT("vex", oe ? "열림" : "닫힘", oe ? "on" : "");
+  setT("vsp", m.spark ? "스파크" : "—", m.spark ? "on" : "");
   $("p").style.width = (m.pn * 100).toFixed(0) + "%";
-  slider.value = String(Math.floor(th) % 720);
+  const sv = String(Math.floor(th) % 720); if (slider.value !== sv) slider.value = sv;
   slider.setAttribute("aria-valuetext", names[m.stroke] + ", 크랭크 " + Math.round(th) + "도");
 }
 

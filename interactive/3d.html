@@ -292,7 +292,19 @@ function makeAxle() {
   // leaf springs
   const leafMat = mat(0x8c9399, 0.4, 0.7);
   const leaves = [[1, 0], [0.82, 0.06], [0.62, 0.12], [0.42, 0.18]];
-  const sprs = [0.6, -0.6].map((z) => leaves.map(() => { const m = new THREE.Mesh(new THREE.BufferGeometry(), leafMat); m.userData.z = z; g.add(m); return m; })).flat();
+  function leafGeo() {
+    const N = 40, g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array((N + 1) * 4 * 3), 3));
+    const idx = [];
+    for (let i = 0; i < N; i++) { const a = i * 4, b = a + 4; [[0, 1], [1, 2], [2, 3], [3, 0]].forEach(([p, q]) => idx.push(a + p, b + p, b + q, a + p, b + q, a + q)); }
+    g.setIndex(idx); return g;
+  }
+  function setLeaf(g, pts) {
+    const P = g.attributes.position.array, T = 0.03, W = 0.09;
+    pts.forEach((p, i) => { const o = i * 12; [[T, -W], [T, W], [-T, W], [-T, -W]].forEach(([dy, dz], k) => { P[o + k * 3] = p.x; P[o + k * 3 + 1] = p.y + dy; P[o + k * 3 + 2] = dz; }); });
+    g.attributes.position.needsUpdate = true; g.computeVertexNormals(); g.computeBoundingSphere();
+  }
+  const sprs = [0.6, -0.6].map((z) => leaves.map(() => { const m = new THREE.Mesh(leafGeo(), leafMat); m.userData.z = z; g.add(m); return m; })).flat();
   const A = L / Math.PI;
   function leafPts(frac, off, phi) {
     const pts = [];
@@ -344,8 +356,7 @@ function makeAxle() {
     sprs.forEach((m, i) => {
       const [frac, off] = leaves[i % 4];
       const pts = leafPts(frac, off, phi);
-      const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.035, 5);
-      m.geometry.dispose(); m.geometry = geo; m.position.set(0, 0, m.userData.z);
+      setLeaf(m.geometry, pts); m.position.set(0, 0, m.userData.z);
     });
     g.updateMatrixWorld(true);
     // propshaft: fixed end at the transmission, free end follows the pinion flange
