@@ -290,6 +290,21 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .link:active{background:var(--surface)}
 @media (hover:hover) and (pointer:fine){.link:hover{background:var(--surface)}}
 @media (max-width:480px){.q{font-size:20px}.card{padding:22px 18px}}
+/* 공부 탭 요약 카드(실제 사진) */
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.pcard{display:flex;flex-direction:column;min-width:0;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden}
+.pcard figure{margin:0;aspect-ratio:4/3;background:var(--surface);overflow:hidden}
+.pcard figure img{display:block;width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+.pcard figure img.dg{object-fit:contain;padding:8px;background:#f4f3ef}
+.pcard .ph-c{padding:6px 14px 0;font-size:11px;color:var(--muted);line-height:1.4}
+.pcard h3{margin:10px 14px 6px;font-size:16px;font-weight:600;letter-spacing:-.005em}
+.pcard ul{margin:0;padding:0 14px 16px;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.45}
+.pcard li{position:relative;padding-left:14px}
+.pcard li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.credits{margin:14px 0 0;font-size:12px;color:var(--muted)}
+.credits summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
+.credits p{margin:6px 0;line-height:1.5}
+.credits a{color:var(--accent)}
 /* 그림 위 부품 탭 설명 · 값 조절 */
 .hsw{position:relative;width:100%;min-width:640px}
 .hsw .figwide{min-width:0}
@@ -1280,13 +1295,25 @@ document.addEventListener('click',function(e){
 /* --- 주제별 공부 --- */
 function topicIds(key){ var o=[]; Object.keys(DX).forEach(function(i){ if(DX[i].indexOf(key)>-1) o.push(+i); }); return o; }
 function topicArea(ids){ var c={}; ids.forEach(function(i){ c[D[i][0]]=(c[D[i][0]]||0)+1; }); var best='기관',n=0; Object.keys(c).forEach(function(k){ if(c[k]>n){n=c[k];best=k;} }); return best; }
+var PH={"catalyst": {"t": "Catalytic converter 20230510", "by": "Santeri Viinamäki", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=137828452", "via": "Wikimedia Commons"}, "exhaust": {"t": "Car exhaust pipe", "by": "Santeri Viinamäki", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0", "p": "https://commons.wikimedia.org/wiki/File:Car_exhaust_pipe.jpg", "via": "Wikimedia Commons"}, "injector": {"t": "Bosch common rail injector", "by": "Panoha", "lic": "CC BY-SA 3.0", "lu": "https://creativecommons.org/licenses/by-sa/3.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=8673522", "via": "Wikimedia Commons"}, "o2-sensor": {"t": "Lambda sond till volvo240 etc", "by": "Martin Olsson (mnemo)", "lic": "CC BY-SA 3.0", "lu": "https://creativecommons.org/licenses/by-sa/3.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=3357669", "via": "Wikimedia Commons"}, "strut": {"t": "Federbein", "by": "Bukk", "lic": "public domain", "lu": "https://creativecommons.org/publicdomain/mark/1.0/", "p": "https://commons.wikimedia.org/wiki/File:Federbein.JPG", "via": "Wikimedia Commons"}, "steering-pump": {"t": "Power Steering Pump; Mercedes-Benz 190E (W201)", "by": "nickjohnson", "lic": "CC BY 2.0", "lu": "https://creativecommons.org/licenses/by/2.0/", "p": "https://www.flickr.com/photos/81102241@N00/3547585764", "via": "Flickr"}, "torque-converter": {"t": "Torque-converter-cutbox-model", "by": "BerndB (저작자 추정)", "lic": "CC BY-SA 3.0", "lu": "https://creativecommons.org/licenses/by-sa/3.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=1423753", "via": "Wikimedia Commons"}, "disc-brake": {"t": "Alarm bells! (25681917701)", "by": "Riley from Christchurch, New Zealand", "lic": "CC BY 2.0", "lu": "https://creativecommons.org/licenses/by/2.0", "p": "https://commons.wikimedia.org/wiki/File:Alarm_bells!_(25681917701).jpg", "via": "Wikimedia Commons"}, "harness": {"t": "Wiring harness module box", "by": "Mkamara9540", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=36812979", "via": "Wikimedia Commons"}, "relay": {"t": "Socket for automotive relays", "by": "Retired electrician", "lic": "CC0", "lu": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/", "p": "https://commons.wikimedia.org/w/index.php?curid=126307368", "via": "Wikimedia Commons"}, "manifold": {"t": "AC Manifold Gauges checking refrigerant charge", "by": "Phyxter Home Services", "lic": "CC BY 2.0", "lu": "https://creativecommons.org/licenses/by/2.0/", "p": "https://www.flickr.com/photos/193473686@N05/51323310625", "via": "Flickr"}, "wiper": {"t": "2008-04-24 Windshield wiper parts", "by": "Ildar Sagdejev (Specious)", "lic": "CC BY-SA 4.0", "lu": "https://creativecommons.org/licenses/by-sa/4.0/", "p": "https://commons.wikimedia.org/w/index.php?curid=4428926", "via": "Wikimedia Commons"}};
+var MAPC={"기관": [["삼원촉매·산소센서", "catalyst", ["정화: HC · CO · NOx", "작동 400~800℃ (LOT 300℃)", "후단 센서: 바이너리", "지르코니아 · 티타니아"], "삼원촉매 겉모습"], ["배출가스", "exhaust", ["CO·HC: 농후할수록 ↑", "NOx: 약간 희박에서 ↑", "PM: 농후·저온에서 ↑", "λ > 1 = 희박"], "배기관 끝(테일파이프)"], ["증발가스·블로우바이", "@evap-control", ["캐니스터: HC 흡착", "PCSV: 듀티 제어", "FTPS: 탱크 압력 감지", "블로우바이 → PCV"], "증발가스 제어 도식"], ["디젤 연료·후처리", "injector", ["저압펌프 → 고압펌프 → 레일", "예비 · 주 · 사후 분사", "DPF: 차압센서로 재생", "SCR: 요소수 32.5%"], "커먼레일 인젝터"], ["센서·ECU", "o2-sensor", ["CKPS: 엔진 회전수", "홀센서 아닌 것: AFS", "APS1 : APS2 = 2 : 1", "연료 차단 시 피드백 정지"], "산소(람다) 센서"]], "섀시": [["전자제어 현가", "@ecs-control", ["급출발 노즈업: 안티 스쿼트", "제동 노즈다운: 다이브", "G센서: 롤 감지", "안티 요잉: 제어요소 아님"], "ECS 자세 제어 도식"], ["차체 진동", "strut", ["스프링 위: 바운싱 · 피칭 · 롤링", "스프링 아래: 휠 홉", "시미: 핸들이 떨림", "아래 질량: 감쇄가 빠름"], "스트럿(스프링·쇽업소버)과 브레이크 디스크"], ["조향장치", "steering-pump", ["MDPS: C 컬럼 · R 랙 · P 피니언", "유압식: 바이패스 · 반력 · 유량", "링기어 구동식은 없음", "회전력 센서 = 토크 센서"], "동력 조향 오일 펌프"], ["자동변속기", "torque-converter", ["스톨 낮음: 엔진 · 컨버터", "D만 높음: 원웨이 클러치", "R만 높음: 프런트 클러치", "스테이터: 토크 증대"], "토크 컨버터 단면 모형"], ["제동장치", "disc-brake", ["ABS 고장: 일반 제동은 정상", "휠센서 고장 시 ABS 중지", "공기 브레이크: 챔버 · 언로더", "보조: 엔진 · 배기 · 와전류"], "디스크 브레이크(디스크와 캘리퍼)"]], "전기": [["통신", "harness", ["LIN: 1선 · 단일 마스터", "CAN 종단저항: 합성 60Ω", "bus off: 스스로 이탈", "이모빌라이저: K-line"], "제어기와 배선 다발"], ["회로·계산", "relay", ["직렬 4·8·12Ω → 0.5A", "조도 = 광도 ÷ 거리²", "R = V ÷ I (12V·0.125A = 96Ω)", "접촉저항 전압강하 ≤ 0.2V"], "자동차용 릴레이 소켓"], ["공조(냉난방)", "manifold", ["압축기: 고온·고압 기체", "응축기: 고온·고압 액체", "증발기: 저온·저압 기체", "핀서모: 빙결 방지 (0~0.5℃)"], "에어컨 매니폴드 게이지"], ["바디 전장", "wiper", ["레인센서: 빛 · 일조 · 강우", "오토라이트: 조도 변할 때 사용", "윈도우: 방전 후 초기화 필요", "열선: 약 20분 후 OFF"], "와이퍼 부품"]]};
+function mapCards(a){
+  return '<div class="pcards">'+MAPC[a].map(function(c){
+    var dg=c[1].charAt(0)==='@', src=dg?'diagrams/'+c[1].slice(1)+'.svg':'photos/'+c[1]+'.jpg', p=dg?null:PH[c[1]];
+    var cap=p?'사진 · '+esc(p.by)+' · '+esc(p.lic):'도식';
+    return '<article class="pcard"><figure><img'+(dg?' class="dg"':'')+' data-zoom="1" loading="lazy" alt="'+esc(c[3])+'" src="'+src+'"></figure><div class="ph-c">'+esc(c[3])+' · '+cap+'</div><h3>'+esc(c[0])+'</h3><ul>'+c[2].map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('')+'</ul></article>';
+  }).join('')+'</div>';
+}
+function creditsBox(){
+  return '<details class="credits"><summary>사진 출처 · 라이선스</summary>'+Object.keys(PH).map(function(k){ var p=PH[k]; return '<p>"'+esc(p.t)+'" · '+esc(p.by)+' · <a href="'+p.lu+'" target="_blank" rel="noopener">'+esc(p.lic)+'</a> · <a href="'+p.p+'" target="_blank" rel="noopener">'+esc(p.via)+'</a></p>'; }).join('')+'</details>';
+}
 function topicsView(){
   var by={'기관':[],'섀시':[],'전기':[]};
   Object.keys(DXT).forEach(function(k){ var ids=topicIds(k); if(!ids.length) return; by[topicArea(ids)].push({k:k,ids:ids}); });
   var h='<div class="col"><div class="greet"><div><h1>주제별 공부</h1><p>구조도를 먼저 보고 핵심을 읽은 뒤, 그 주제의 문제를 풉니다. '+Object.keys(DXT).length+'개 주제</p></div></div>';
   ['기관','섀시','전기'].forEach(function(a){
     h+='<section class="panel"><div class="panel-h"><h2>'+a+'</h2><span class="chip-n">'+by[a].length+'개 주제</span></div>'
-      +'<div class="detail"><div class="cap">'+a+' 한 장 요약 · 손그림 <em>눌러서 크게 보기 · 밑줄 친 글자는 눌러서 설명</em></div><div class="wide"><img class="figwide" data-zoom="1" alt="'+a+' 한 장 요약 지도" src="maps/'+{'기관':'engine','섀시':'chassis','전기':'electric'}[a]+'.png"></div></div><div class="topics">';
+      +mapCards(a)+'<div class="topics">';
     by[a].forEach(function(x){
       var m=0; x.ids.forEach(function(i){ var r=DB.p[i]; if(r&&r.b>=4) m++; });
       h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="width:'+(m/x.ids.length*100)+'%"></i></div></button>';
@@ -1301,7 +1328,7 @@ function topicsView(){
     +'<a href="interactive/oil-lubrication.html" target="_blank" rel="noopener">엔진 오일 윤활 경로 · 80℃ 오일 온도 센서 ▸</a>'
     +'<a href="interactive/disc-brake-gap.html" target="_blank" rel="noopener">디스크 브레이크 · 유격 ▸</a>'
     +'<a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></section>';
-  return h+'</div>';
+  return h+creditsBox()+'</div>';
 }
 function studyView(){
   var k=S.topic, ids=topicIds(k);
