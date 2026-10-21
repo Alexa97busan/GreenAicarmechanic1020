@@ -40,6 +40,31 @@ input[type=date]:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .areas.pick .atile span{font-size:14px}
 .areas.pick .atile[aria-pressed=true]{border-color:var(--accent);box-shadow:none;outline:2px solid var(--accent);outline-offset:-2px}
 .pickhint{font-size:20px;font-weight:600;text-align:center;padding:4px 0 8px}
+.hero2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:center;padding:40px 0 8px}
+.hero-t h1{font-size:40px;line-height:1.2;font-weight:500;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.hero-t p{font-size:16px;line-height:1.6;color:var(--muted);margin:14px 0 0;max-width:30em}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.hchip{font-size:14px;padding:6px 14px;border-radius:var(--radius-control);background:var(--surface);color:var(--text)}
+.hero-a{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.hero-a .btn{min-height:56px;font-size:16px;padding:0 28px}
+.hero-p img,.banner img,.atile img{filter:saturate(.88) contrast(1.02)}
+.hero-p img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--radius-card)}
+.banner img{display:block;width:100%;aspect-ratio:21/8;object-fit:cover;object-position:center 60%;border-radius:var(--radius-card)}
+.sect{display:flex;flex-direction:column;gap:16px;margin-top:16px}
+.sech{font-size:24px;font-weight:500;letter-spacing:-.01em;margin:0}
+.areas.pick .atile img{aspect-ratio:4/3}
+.atile[data-a="기관"] div{background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.atile[data-a="섀시"] div{background:color-mix(in srgb,#3b6fa5 9%,var(--surface))}
+.atile[data-a="전기"] div{background:color-mix(in srgb,#b5832f 10%,var(--surface))}
+.atile>div{flex:1 1 auto;align-self:stretch;justify-content:center}
+.opts{gap:12px}
+.opts .btn{min-height:56px;font-size:16px;padding:12px 18px}
+.card .q{margin-bottom:4px}
+:root[data-theme="dark"] .hero-p img,:root[data-theme="dark"] .banner img,:root[data-theme="dark"] .atile img{filter:saturate(.85) brightness(.82)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hero-p img,:root:not([data-theme="light"]) .banner img,:root:not([data-theme="light"]) .atile img{filter:saturate(.85) brightness(.82)}}
+@media (max-width:860px){.hero2{grid-template-columns:minmax(0,1fr);gap:20px;padding-top:20px}.hero-p{order:-1}.hero-p img{aspect-ratio:16/9}.hero-t h1{font-size:32px}.banner img{aspect-ratio:16/7}}
+@media (max-width:560px){.hero-a .btn{flex:1 1 100%}.hero-t h1{font-size:32px}}
+@media print{.hero2,.banner{display:none}}
 </style>
 <title>정비 기출 노트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -852,12 +877,19 @@ function head(){
   var cur=(S.view==='stats')?'stats':(S.view==='topics'||S.view==='study')?'topics':'home';
   for(var i=0;i<b.length;i++) b[i].setAttribute('aria-current', String(b[i].dataset.v===cur));
 }
+var AREAS={'기관':['area-engine','삼원촉매 · 디젤 · 센서 · 배출가스'],'섀시':['area-chassis','현가 · 조향 · 변속기 · 제동'],'전기':['area-electric','통신 · 회로 · 공조 · 바디 전장']};
+function areaTiles(cnt,label){
+  return '<div class="areas pick" role="group" aria-label="영역 고르기">'+['기관','섀시','전기'].map(function(a){ return '<button class="atile" type="button" data-a="'+a+'" data-goarea="'+a+'"><img src="photos/'+AREAS[a][0]+'.jpg" alt="" loading="eager"><div><b>'+a+' · '+cnt[a]+label+'</b><span>'+AREAS[a][1]+'</span></div></button>'; }).join('')+'</div>';
+}
+function heroBlock(title,sub,extra,actions){
+  return '<section class="hero2"><div class="hero-t"><h1>'+title+'</h1><p>'+sub+'</p>'+(extra||'')+'<div class="hero-a">'+actions+'</div></div><div class="hero-p"><img src="photos/hero-road.jpg" alt="" loading="eager"></div></section>';
+}
+function banner(f){ return '<div class="banner"><img src="photos/'+f+'.jpg" alt="" loading="lazy"></div>'; }
+document.addEventListener('click',function(e){ var b=e.target.closest('[data-goarea]'); if(!b) return; S.sarea=b.getAttribute('data-goarea'); S.view='topics'; S.reset=false; render(); window.scrollTo(0,0); });
 function homeFirst(c){
   var cnt={'기관':0,'섀시':0,'전기':0}; D.forEach(function(r){ cnt[r[0]]++; });
-  var A=[['기관','catalyst','삼원촉매 · 디젤 · 센서 · 배출가스'],['섀시','strut','현가 · 조향 · 변속기 · 제동'],['전기','harness','통신 · 회로 · 공조 · 바디 전장']];
-  var h='<div class="col"><div class="greet"><div><h1>'+c.total+'문제로 시작합니다.</h1><p>처음이라면 사진과 구조도로 개념을 먼저 보고, 문제를 푸는 순서를 추천합니다.</p></div>';
-  h+='<button class="btn pri" data-m="today">오늘의 학습 시작</button></div>';
-  h+='<div class="areas">'+A.map(function(a){ return '<button class="atile" data-v="topics"><img src="photos/'+a[1]+'.jpg" alt="'+a[0]+' 영역 대표 사진" loading="eager"><div><b>'+a[0]+' · '+cnt[a[0]]+'문제</b><span>'+a[2]+'</span></div></button>'; }).join('')+'</div>';
+  var h='<div class="col">'+heroBlock(c.total+'문제로 시작합니다.','처음이라면 사진과 구조도로 개념을 먼저 보고, 문제를 푸는 순서를 추천합니다.','','<button class="btn pri" data-m="today">오늘의 학습 시작</button><button class="btn" data-v="topics">영역 고르고 공부하기</button>');
+  h+='<section class="sect"><h2 class="sech">영역을 골라 공부를 시작하세요</h2>'+areaTiles(cnt,'문제')+'</section>';
   h+='<section class="panel s12"><div class="panel-h"><h2>무엇부터 할까요</h2></div><div class="trio">';
   h+='<button class="rowcard rec" data-v="topics"><b>주제별 공부</b><span>처음이라면 추천. 사진과 구조도로 개념을 먼저 보고 문제를 풉니다</span></button>';
   h+='<button class="rowcard" data-m="today"><b>오늘의 학습</b><span>새 문제 15개를 풀고 바로 해설을 봅니다</span></button>';
@@ -886,9 +918,10 @@ function home(){
   else { title=scope+c.total+'문제를 아직 풀지 않았습니다.'; sub='새 문제 15개로 첫 학습을 시작하세요.'; }
   var d=new Date(), wd='일월화수목금토'.charAt(d.getDay());
   var dateLine=(d.getMonth()+1)+'월 '+d.getDate()+'일 '+wd+'요일'+(DB.streak?' · 연속 '+DB.streak+'일째':'');
-  var h='<div class="col">';
-  h+='<div class="greet"><div><h1>'+esc(title)+'</h1><p>'+esc(sub)+' <span style="white-space:nowrap">'+esc(dateLine)+'</span></p></div>';
-  h+='<button class="btn pri" data-m="today"'+((c.due+c.fresh)?'':' disabled')+'>오늘의 학습 시작</button></div>';
+  var dd=dday(), gn=todayN(), chips='';
+  if(dd!==null) chips+='<span class="hchip">'+(dd>0?'시험까지 D-'+dd:dd===0?'오늘이 시험일':'시험 D+'+(-dd))+'</span>';
+  chips+='<span class="hchip">오늘 '+gn+' / '+DB.g.daily+'문제</span>';
+  var h='<div class="col">'+heroBlock(esc(title),esc(sub)+' <span style="white-space:nowrap">'+esc(dateLine)+'</span>','<div class="hero-chips">'+chips+'</div>','<button class="btn pri" data-m="today"'+((c.due+c.fresh)?'':' disabled')+'>오늘의 학습 시작</button><button class="btn" data-m="exam">모의시험</button>');
   h+='<div class="grid">';
   h+='<div class="tile s3'+(c.due?' lead-tile':'')+'"><span>복습 대기</span><b>'+c.due+'</b><i>기한이 오늘까지인 문제</i></div>';
   h+='<div class="tile s3"><span>새 문제</span><b>'+c.fresh+'<small>/ '+c.total+'</small></b><i>아직 풀지 않은 문제</i></div>';
@@ -973,7 +1006,7 @@ function session(){
 }
 function result(){
   var n=S.done, pct=Math.round(S.okc/Math.max(1,n)*100);
-  var h='<div class="col narrow"><h1 class="ttl">'+MODES[S.mode]+' 결과</h1><div class="card">';
+  var h='<div class="col narrow"><h1 class="ttl">'+MODES[S.mode]+' 결과</h1>'+banner('banner-result')+'<div class="card">';
   if(S.mode==='exam'){ var sc=Math.round(S.okc/S.queue.length*1000)/10; h+='<div class="score">'+sc+'<small>점 · '+S.okc+'/'+S.queue.length+'</small></div>'; }
   else h+='<div class="score">'+pct+'<small>% · '+S.okc+'/'+n+' (재도전 포함)</small></div>';
   h+='</div>';
@@ -1322,7 +1355,7 @@ function svgUri(s){ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponen
 function xResult(mode,ok,total,miss){ S.xr={mode:mode,ok:ok,total:total,miss:miss}; S.view='xresult'; touchDay(); render(); window.scrollTo(0,0); }
 function xresult(){
   var x=S.xr, pct=Math.round(x.ok/Math.max(1,x.total)*100);
-  var h='<div class="col narrow"><h1 class="ttl">'+MODES[x.mode]+' 결과</h1><div class="card"><div class="score">'+pct+'<small>% · '+x.ok+'/'+x.total+'</small></div></div>';
+  var h='<div class="col narrow"><h1 class="ttl">'+MODES[x.mode]+' 결과</h1>'+banner('banner-result')+'<div class="card"><div class="score">'+pct+'<small>% · '+x.ok+'/'+x.total+'</small></div></div>';
   if(x.miss.length) h+='<h2 class="sec">다시 볼 주제 '+x.miss.length+'</h2><div class="miss">'+x.miss.map(function(m){return '<div><b>'+esc(m)+'</b></div>';}).join('')+'</div>';
   else h+='<div class="empty">모두 맞혔습니다.</div>';
   h+='<div class="row" style="margin-top:8px"><button class="btn pri grow" data-m="'+x.mode+'">한 번 더</button><button class="btn grow" data-go="home">처음으로</button></div></div>';
@@ -1477,8 +1510,8 @@ function topicsView(){
   Object.keys(DXT).forEach(function(k){ var ids=topicIds(k); if(!ids.length) return; by[topicArea(ids)].push({k:k,ids:ids}); });
   var cur=S.sarea, total=by['기관'].length+by['섀시'].length+by['전기'].length;
   var h='<div class="col"><div class="greet"><div><h1>주제별 공부</h1><p>사진과 구조도로 개념을 먼저 보고, 그 주제의 문제를 풉니다. '+total+'개 주제</p></div></div>';
-  var PIC={'기관':['catalyst','삼원촉매 · 디젤 · 센서 · 배출가스'],'섀시':['strut','현가 · 조향 · 변속기 · 제동'],'전기':['harness','통신 · 회로 · 공조 · 바디 전장']};
-  h+='<div class="areas pick" role="group" aria-label="영역 고르기">'+['기관','섀시','전기'].map(function(a){ return '<button class="atile" type="button" data-sarea="'+a+'" aria-pressed="'+(cur===a)+'"><img src="photos/'+PIC[a][0]+'.jpg" alt="" loading="eager"><div><b>'+a+' · '+by[a].length+'개 주제</b><span>'+PIC[a][1]+'</span></div></button>'; }).join('')+'</div>';
+  var cntA={'기관':by['기관'].length,'섀시':by['섀시'].length,'전기':by['전기'].length};
+  h+='<div class="areas pick" role="group" aria-label="영역 고르기">'+['기관','섀시','전기'].map(function(a){ return '<button class="atile" type="button" data-a="'+a+'" data-sarea="'+a+'" aria-pressed="'+(cur===a)+'"><img src="photos/'+AREAS[a][0]+'.jpg" alt="" loading="eager"><div><b>'+a+' · '+cntA[a]+'개 주제</b><span>'+AREAS[a][1]+'</span></div></button>'; }).join('')+'</div>';
   if(!cur) h+='<div class="pickhint">공부할 영역을 먼저 고르세요.</div>';
   h+='<div class="tsearch"><input type="search" id="tsearch" placeholder="주제 검색 (예: 산소센서, 종단저항, 휠 홉)" aria-label="주제 검색" autocomplete="off"><div id="tres" role="status"></div></div>';
   if(!cur) return h+creditsBox()+'</div>';
@@ -2080,10 +2113,9 @@ function prepPanel(){
   var dd=dday(), n=todayN(), g=DB.g.daily, last=DB.ms.length?DB.ms[DB.ms.length-1]:null, wk=weakTopics().filter(function(o){ return o.n>=2&&o.acc<0.7; }).length;
   var ddT=dd===null?'–':(dd>0?'D-'+dd:dd===0?'D-DAY':'D+'+(-dd));
   var h='<section class="panel s12 prep"><div class="panel-h"><h2>시험 준비</h2><span class="chip-n">목표 · 약점 · 요약</span></div><div class="grid" style="gap:12px">';
-  h+='<button class="tile s3" type="button" data-goal="1" aria-expanded="'+!!S.goalOpen+'"><span>시험까지</span><b>'+ddT+'</b><i>'+(DB.g.exam?DB.g.exam.replace(/-/g,'.')+' · 눌러서 바꾸기':'눌러서 시험 날짜 정하기')+'</i></button>';
-  h+='<div class="tile s3"><span>오늘 푼 문제</span><b>'+n+'<small>/ '+g+'</small></b><i>'+(n>=g?'오늘 목표를 채웠습니다':(g-n)+'문제 남았습니다')+'</i></div>';
-  h+='<div class="tile s3"><span>최근 모의시험</span><b>'+(last?last.s+'<small>점</small>':'–')+'</b><i>'+(last?'총 '+DB.ms.length+'회 · 평균 '+mockAvg()+'점':'모의시험을 보면 점수가 쌓입니다')+'</i></div>';
-  h+='<div class="tile s3"><span>약한 주제</span><b>'+wk+'<small>개</small></b><i>정답률 70% 미만인 소분류</i></div></div>';
+  h+='<button class="tile s6" type="button" data-goal="1" aria-expanded="'+!!S.goalOpen+'"><span>시험까지</span><b>'+ddT+'</b><i>'+(DB.g.exam?DB.g.exam.replace(/-/g,'.')+' · 눌러서 바꾸기':'눌러서 시험 날짜 정하기')+'</i></button>';
+  h+='<div class="tile s6"><span>오늘 푼 문제</span><b>'+n+'<small>/ '+g+'</small></b><i>'+(n>=g?'오늘 목표를 채웠습니다':(g-n)+'문제 남았습니다')+'</i></div>';
+  h+='</div>';
   if(S.goalOpen){
     h+='<div class="goalbox"><label for="gexam">시험 날짜</label><input type="date" id="gexam" value="'+esc(DB.g.exam)+'">'+(DB.g.exam?'<button class="btn" type="button" data-gclear="1">날짜 지우기</button>':'')+'</div>';
     h+='<div class="chips" role="group" aria-label="하루 목표 문제 수"><span class="chiplabel">하루 목표</span>'+[10,20,30,50].map(function(x){ return '<button class="chip" type="button" data-gd="'+x+'" aria-pressed="'+(g===x)+'">'+x+'문제</button>'; }).join('')+'</div>';
@@ -2126,7 +2158,7 @@ document.addEventListener('change',function(e){
 /* --- 시험 직전 요약본 --- */
 var FORM=[['옴의 법칙','I = V ÷ R','12V, 4Ω이면 3A'],['직렬 합성저항','R = R1 + R2 + R3','4+8+12 = 24Ω'],['병렬 합성저항(2개)','R = R1×R2 ÷ (R1+R2)','6Ω, 3Ω이면 2Ω'],['병렬 전체 전류','I = I1 + I2 (각 가지 V ÷ R)','12V, 4Ω·6Ω이면 5A'],['전력','P = V × I','12V, 5A이면 60W'],['릴레이 코일 저항','R = V ÷ I','12V, 0.125A이면 96Ω'],['키르히호프 전류','들어오는 합 = 나가는 합','3A+2A = 1A+4A'],['파스칼 원리','F1 ÷ A1 = F2 ÷ A2','넓이 5배면 힘 5배'],['조도','E = I ÷ r²','거리 2배면 조도 1/4'],['제동력 비율','제동력 합 ÷ 차량 중량 × 100','600÷1200 = 50%']];
 function cheatView(){
-  var h='<div class="col cheat"><div class="greet noprint"><div><h1>시험 직전 요약본</h1><p>영역별 핵심과 계산 공식을 한 장으로 모았습니다. 아래 버튼으로 인쇄하거나 PDF로 저장하세요.</p></div><button class="btn pri" type="button" data-print="1">인쇄 · PDF로 저장</button></div>';
+  var h='<div class="col cheat"><div class="greet noprint"><div><h1>시험 직전 요약본</h1><p>영역별 핵심과 계산 공식을 한 장으로 모았습니다. 아래 버튼으로 인쇄하거나 PDF로 저장하세요.</p></div><button class="btn pri" type="button" data-print="1">인쇄 · PDF로 저장</button></div>'+banner('banner-cheat')+'<span class="noprint"></span>';
   h+='<section class="panel"><div class="panel-h"><h2>계산 공식</h2></div><div class="forms">'+FORM.map(function(f){ return '<div class="frow"><b>'+esc(f[0])+'</b><code>'+esc(f[1])+'</code><span>'+esc(f[2])+'</span></div>'; }).join('')+'</div></section>';
   ['기관','섀시','전기'].forEach(function(a){
     h+='<section class="panel"><div class="panel-h"><h2>'+a+' 핵심</h2></div><div class="ci-grid">'+MAPC[a].map(function(c){ return '<div class="ci"><b>'+esc(c[0])+'</b><ul>'+c[2].map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul></div>'; }).join('')+'</div></section>';
