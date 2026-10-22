@@ -178,6 +178,7 @@ nav button[aria-current="true"]{background:transparent}
 @media (prefers-reduced-motion:reduce){.t-pop .d{animation:none}nav .nav-pill.anim{transition:none}.res.ok .ic{animation:none}.res.ok .ic path{animation:none;stroke-dashoffset:0}}
 .rb-frame{display:block;width:min(100%,340px);aspect-ratio:5/4;margin:0 auto;border:0;background:transparent}
 @media print{.rb-frame{display:none}}
+.rb-frame.wf{width:min(100%,300px)}
 </style>
 <title>정비 기출 노트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1077,6 +1078,7 @@ function heroBlock(title,sub,extra,actions){
   if(S.hi>=HP().length) S.hi=0;
   return '<section class="hero2"><div class="hero-t"><h1>'+title+'</h1><p>'+sub+'</p>'+(extra||'')+'<div class="hero-a">'+actions+'</div></div><div class="hero-p" data-hero><img id="hs" class="'+hcls(HP()[S.hi]).trim()+'" src="photos/g/'+pad(HP()[S.hi])+'.jpg" alt="자동차 사진. 누르면 크게 보기" loading="eager" tabindex="0" role="button"><div class="hs-ctl"><button type="button" data-hs="-1" aria-label="이전 사진">‹</button><span id="hs-n" aria-live="off">'+(S.hi+1)+' / '+HP().length+'</span><button type="button" data-hs="1" aria-label="다음 사진">›</button></div></div></section>';
 }
+function wheelFrame(){ return '<iframe class="rb-frame wf" title="바퀴 로고. 포인터를 오른쪽으로 옮기면 바퀴가 돌고 속도선이 길어집니다" src="interactive/wheel.html?bare=1" loading="lazy"></iframe>'; }
 function banner(f){ return '<div class="banner"><img src="photos/'+f+'.jpg" alt="" loading="lazy"></div>'; }
 document.addEventListener('click',function(e){ var b=e.target.closest('[data-goarea]'); if(!b) return; S.sarea=b.getAttribute('data-goarea'); S.view='topics'; S.reset=false; render(); window.scrollTo(0,0); });
 function homeFirst(c){
@@ -1202,7 +1204,7 @@ function session(){
 }
 function result(){
   var n=S.done, pct=Math.round(S.okc/Math.max(1,n)*100);
-  var h='<div class="col narrow"><h1 class="ttl">'+MODES[S.mode]+' 결과</h1>'+banner('banner-result')+'<div class="card">';
+  var h='<div class="col narrow"><h1 class="ttl">'+MODES[S.mode]+' 결과</h1>'+wheelFrame()+'<div class="card">';
   if(S.mode==='exam'){ var sc=Math.round(S.okc/S.queue.length*1000)/10; h+='<div class="score">'+sc+'<small>점 · '+S.okc+'/'+S.queue.length+'</small></div>'; }
   else h+='<div class="score">'+pct+'<small>% · '+S.okc+'/'+n+' (재도전 포함)</small></div>';
   h+='</div>';
@@ -1556,7 +1558,7 @@ function svgUri(s){ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponen
 function xResult(mode,ok,total,miss){ S.xr={mode:mode,ok:ok,total:total,miss:miss}; S.view='xresult'; touchDay(); render(); window.scrollTo(0,0); }
 function xresult(){
   var x=S.xr, pct=Math.round(x.ok/Math.max(1,x.total)*100);
-  var h='<div class="col narrow"><h1 class="ttl">'+MODES[x.mode]+' 결과</h1>'+banner('banner-result')+'<div class="card"><div class="score">'+pct+'<small>% · '+x.ok+'/'+x.total+'</small></div></div>';
+  var h='<div class="col narrow"><h1 class="ttl">'+MODES[x.mode]+' 결과</h1>'+wheelFrame()+'<div class="card"><div class="score">'+pct+'<small>% · '+x.ok+'/'+x.total+'</small></div></div>';
   if(x.miss.length) h+='<h2 class="sec">다시 볼 주제 '+x.miss.length+'</h2><div class="miss">'+x.miss.map(function(m){return '<div><b>'+esc(m)+'</b></div>';}).join('')+'</div>';
   else h+='<div class="empty">모두 맞혔습니다.</div>';
   h+='<div class="row" style="margin-top:8px"><button class="btn pri grow" data-m="'+x.mode+'">한 번 더</button><button class="btn grow" data-go="home">처음으로</button></div></div>';
