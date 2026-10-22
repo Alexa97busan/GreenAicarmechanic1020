@@ -897,8 +897,8 @@ const ring = (y, r, a0 = 0) => Array.from({ length: N }, (_, k) => [r * Math.cos
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
   let stretch = value, ang = 28;
-  const C = Cam(45, 0.5, 2.45);
-  fit(C, [[-48, -26, -4], [28, -26, -4], [-48, 26, 0], [28, 26, 0], [R, 0, ZC + R + 2]], 200, 168);
+  const C = Cam(45, 0.5, 2.95);
+  fit(C, [[-48, -26, -4], [28, -26, -4], [-48, 26, 0], [28, 26, 0], [R, 0, ZC + R + 2], [-62, 0, ZC + 14]], 200, 168);
   const P = proj(C), front = facing(C);
 
   const g = mk("g", {}, svg);
@@ -909,9 +909,9 @@ function mount({ stage, svg, read }, value) {
 
   const draw = (spd) => {
     LEN.forEach((l, i) => {
-      const L = l * (1 + stretch * spd * 0.1), z = ZC + DZ[i] - 1.8;
-      const o = rrect(BX - L, -2.2, BX, 2.2, 1.6, 4), n = rrect(BX - L + 1, -1.2, BX - 1, 1.2, 0.6, 4);
-      put(bars[i], prism(P, front, o, n, z, z + 3.6));
+      const L = l * (1 + stretch * spd * 0.16), z = ZC + DZ[i] - 2.4;
+      const o = rrect(BX - L, -3, BX, 3, 2.2, 4), n = rrect(BX - L + 1.2, -1.8, BX - 1.2, 1.8, 0.8, 4);
+      put(bars[i], prism(P, front, o, n, z, z + 4.8));
     });
     const back = ring(-T / 2, R).map(([x, y, z]) => P(x, y, z)), fr = ring(T / 2, R).map(([x, y, z]) => P(x, y, z));
     body.setAttribute("d", poly(hull(back.concat(fr))));
@@ -949,7 +949,7 @@ hairline({
   name: "wheel",
   means: "정비 기출 노트의 바퀴 로고입니다. 포인터를 오른쪽으로 옮길수록 바퀴가 빨리 돌고 속도선이 길어집니다.",
   rules: [4, 5, 7, 8, 9],
-  range: [8, 16, 24],
+  range: [6, 10, 15],
   tour: [[110, 150], [200, 150], [300, 150], null],
   mount,
 });
