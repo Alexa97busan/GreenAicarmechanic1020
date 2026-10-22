@@ -2381,7 +2381,7 @@ function lbOpen(p,from,list){
       +'<div class="lbx-s" id="lbs"><img id="lbi" alt="" draggable="false"></div>'
       +'<button class="lbx-n lbx-p" type="button" data-lbn="-1" aria-label="이전 사진">‹</button><button class="lbx-n" type="button" data-lbn="1" aria-label="다음 사진">›</button>'
       +'<div class="lbx-cap" aria-live="polite"><span class="lbx-m" id="lbm"></span><b id="lbt"></b><span id="lbd"></span><button class="lbx-dm" type="button" data-lbd="1" aria-expanded="false" hidden>더 깊이 보기</button><div class="lbx-dp" id="lbdp"></div></div>';
-    document.body.appendChild(o); lbBind(); }
+    document.body.appendChild(o); lbBind(); void o.offsetWidth; }
   lbSet(0); if(window.dogamLoad) dogamLoad().then(function(){ if(lbEl()&&lbEl().classList.contains('on')) lbDeepSet(); }); o.classList.add('on'); document.body.style.overflow='hidden'; o.querySelector('[data-lbc]').focus();
 }
 function lbCur(){ return lb.list[lb.p]; }
