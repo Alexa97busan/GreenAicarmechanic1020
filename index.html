@@ -1078,7 +1078,7 @@ function heroBlock(title,sub,extra,actions){
   if(S.hi>=HP().length) S.hi=0;
   return '<section class="hero2"><div class="hero-t"><h1>'+title+'</h1><p>'+sub+'</p>'+(extra||'')+'<div class="hero-a">'+actions+'</div></div><div class="hero-p" data-hero><img id="hs" class="'+hcls(HP()[S.hi]).trim()+'" src="photos/g/'+pad(HP()[S.hi])+'.jpg" alt="자동차 사진. 누르면 크게 보기" loading="eager" tabindex="0" role="button"><div class="hs-ctl"><button type="button" data-hs="-1" aria-label="이전 사진">‹</button><span id="hs-n" aria-live="off">'+(S.hi+1)+' / '+HP().length+'</span><button type="button" data-hs="1" aria-label="다음 사진">›</button></div></div></section>';
 }
-function wheelFrame(){ return '<iframe class="rb-frame wf" title="바퀴 로고. 포인터를 오른쪽으로 옮기면 바퀴가 돌고 속도선이 길어집니다" src="interactive/wheel.html?bare=1" loading="lazy"></iframe>'; }
+function wheelFrame(){ return '<iframe class="rb-frame wf" title="바퀴 로고. 포인터를 오른쪽으로 옮기면 바퀴가 돌고 속도선이 길어집니다" src="interactive/wheel.html?bare=1&on=ground" loading="lazy"></iframe>'; }
 function banner(f){ return '<div class="banner"><img src="photos/'+f+'.jpg" alt="" loading="lazy"></div>'; }
 document.addEventListener('click',function(e){ var b=e.target.closest('[data-goarea]'); if(!b) return; S.sarea=b.getAttribute('data-goarea'); S.view='topics'; S.reset=false; render(); window.scrollTo(0,0); });
 function homeFirst(c){
