@@ -604,6 +604,13 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .hsw .figwide{min-width:0}
 .hsb{position:absolute;display:block;padding:0;margin:0;min-height:0;background:transparent;border:0;border-bottom:1.5px dotted var(--accent);border-radius:0;cursor:pointer;touch-action:manipulation}
 .hsb.on{background:rgba(27,110,102,.18)}
+.hsw{transition:transform .35s var(--ease)}
+.hsw::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:10px;opacity:0;transition:opacity .3s var(--ease);background:radial-gradient(circle 170px at var(--mx,50%) var(--my,30%),rgba(255,255,255,.62),rgba(255,255,255,0) 68%);mix-blend-mode:soft-light}
+.hsw.lit::after{opacity:1}
+.hsw.tilt{transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .12s linear}
+@media (hover:hover) and (pointer:fine){.hsb:hover{background:rgba(27,110,102,.14);border-bottom-style:solid}.hsp:hover{transform:scale(1.14);box-shadow:0 0 0 4px rgba(27,110,102,.22)}}
+.hsp:active{transform:scale(.9)}
+@media (prefers-reduced-motion:reduce){.hsw,.hsw.tilt{transform:none;transition:none}.hsw::after{display:none}}
 .hsm{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--accent);border:2px solid var(--ground);pointer-events:none}
 .hsc{position:relative;margin:0 14px 12px;padding:12px 40px 12px 14px;background:var(--surface);border-radius:var(--radius-row);font-size:14px;line-height:1.55}
 .hsc .hsi{margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
@@ -2139,6 +2146,21 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
     getSvg(key).then(function(text){
       if(!document.body.contains(img)) return;
       var wrap=document.createElement('div'); wrap.className='hsw'; img.parentNode.insertBefore(wrap,img); wrap.appendChild(img);
+      if(!window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+        var rafL=0, offT=0;
+        var light=function(e){
+          if(rafL) return; var cx=e.clientX, cy=e.clientY, mouse=e.pointerType==='mouse';
+          rafL=requestAnimationFrame(function(){
+            rafL=0; var r=wrap.getBoundingClientRect(); if(!r.width) return;
+            var px=Math.min(1,Math.max(0,(cx-r.left)/r.width)), py=Math.min(1,Math.max(0,(cy-r.top)/r.height));
+            wrap.style.setProperty('--mx',(px*100).toFixed(1)+'%'); wrap.style.setProperty('--my',(py*100).toFixed(1)+'%'); wrap.classList.add('lit');
+            if(mouse&&window.matchMedia('(hover:hover) and (pointer:fine)').matches){ wrap.style.setProperty('--rx',((.5-py)*2.2).toFixed(2)+'deg'); wrap.style.setProperty('--ry',((px-.5)*2.6).toFixed(2)+'deg'); wrap.classList.add('tilt'); }
+          });
+        };
+        wrap.addEventListener('pointermove',light); wrap.addEventListener('pointerdown',light);
+        var off=function(){ clearTimeout(offT); offT=setTimeout(function(){ wrap.classList.remove('lit','tilt'); wrap.style.removeProperty('--rx'); wrap.style.removeProperty('--ry'); },260); };
+        wrap.addEventListener('pointerleave',off); wrap.addEventListener('pointerup',function(e){ if(e.pointerType!=='mouse') off(); }); wrap.addEventListener('pointercancel',off);
+      }
       var g=boxes(text), cache={};
       g.b.forEach(function(b){
         var list=matches(b.t), gl=gloss(b.t); if(!list.length&&!gl) return;
