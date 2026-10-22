@@ -611,6 +611,33 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .hsw.lit::before{opacity:1}
 .hsb:active{transform:scale(.96)}
 @keyframes pinpop{0%{transform:scale(.8)}60%{transform:scale(1.28)}100%{transform:scale(1)}}
+/* ---- 깊이 · 재질 · 반응 (카드 층, 상단바 유리, 계기판, 순차 등장) ---- */
+.tile,.panel,.card{border-bottom:3px solid color-mix(in srgb,var(--border) 78%,#000 14%);box-shadow:0 8px 14px -10px rgba(0,0,0,.34)} /* taste-skill-ignore 카드 층 */
+button.tile,.atile,.pcard{transition:transform .12s var(--ease),box-shadow .12s var(--ease)}
+button.tile:active,.atile:active,.pcard:active{transform:translateY(2px);box-shadow:none}
+.panel{position:relative}
+.panel::before,.panel::after{content:"";position:absolute;right:12px;width:6px;height:6px;border-radius:50%;background:var(--control);opacity:.7}
+.panel::before{top:10px}.panel::after{bottom:10px}
+.top{transition:background .25s var(--ease)}
+.top.glass{background:color-mix(in srgb,var(--ground) 68%,transparent);backdrop-filter:blur(14px) saturate(1.25);-webkit-backdrop-filter:blur(14px) saturate(1.25)} /* taste-skill-ignore 상단바 하나만 */
+.fx>*{animation:fxrise .42s var(--ease) both;animation-delay:calc(var(--i,0)*48ms)}
+@keyframes fxrise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.gauge{display:block;width:100%;max-width:150px;height:auto;margin:4px 0 0}
+.gauge .g-t{fill:none;stroke:var(--rule);stroke-width:8;stroke-linecap:round}
+.gauge .g-v{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .9s var(--ease)}
+.gauge .g-k{stroke:var(--control);stroke-width:1.4}
+.gauge .g-n{stroke:var(--text);stroke-width:2.4;stroke-linecap:round;transform-origin:60px 62px;transform:rotate(-90deg);transition:transform 1s cubic-bezier(.34,1.45,.64,1)}
+.gauge .g-h{fill:var(--text)}
+.res.ok{animation:rise .16s var(--ease),okring .7s var(--ease)}
+@keyframes okring{0%{outline:3px solid color-mix(in srgb,var(--ok-ink) 45%,transparent);outline-offset:0}100%{outline:3px solid transparent;outline-offset:12px}}
+.res.no{animation:rise .16s var(--ease),shake .42s var(--ease)}
+.res.no .ic{animation:blink .45s 2}
+@keyframes blink{50%{opacity:.2}}
+.gt{position:relative}
+.gt::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s var(--ease);background:radial-gradient(circle 120px at var(--mx,50%) var(--my,30%),rgba(255,255,255,.55),rgba(255,255,255,0) 70%);mix-blend-mode:soft-light} /* taste-skill-ignore 사진 반사광 */
+.gt.lit::after{opacity:1}
+.gt.tilt{transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.03);z-index:1}
+@media (prefers-reduced-motion:reduce){.fx>*{animation:none}.gauge .g-v,.gauge .g-n{transition:none}.res.ok,.res.no{animation:none}.res.no .ic{animation:none}.gt::after{display:none}.gt.tilt{transform:none}}
 .hsp.on{animation:pinpop .32s var(--ease)}
 .hsw.tilt{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .12s linear}
 @media (hover:hover) and (pointer:fine){.hsb:hover{background:rgba(27,110,102,.24);border-bottom-style:solid;outline:2px solid rgba(27,110,102,.35)}.hsp:hover{transform:scale(1.28);outline:3px solid rgba(27,110,102,.28)}}
@@ -1037,6 +1064,27 @@ function head(){
   navPill();
 }
 var NUMS={};
+function gauge(p){
+  p=Math.max(0,Math.min(100,Math.round(p))); var k='';
+  for(var i=0;i<=10;i++){ var a=Math.PI*(1-i/10), r1=44, r2=i%5?47:50; k+='<path class="g-k" d="M'+(60+r1*Math.cos(a)).toFixed(1)+','+(62-r1*Math.sin(a)).toFixed(1)+'L'+(60+r2*Math.cos(a)).toFixed(1)+','+(62-r2*Math.sin(a)).toFixed(1)+'"/>'; }
+  return '<svg class="gauge" viewBox="0 0 120 70" data-p="'+p+'" aria-hidden="true"><path class="g-t" pathLength="100" d="M10,62A50,50 0 0 1 110,62"/><path class="g-v" pathLength="100" d="M10,62A50,50 0 0 1 110,62"/>'+k+'<line class="g-n" x1="60" y1="62" x2="60" y2="24"/><circle class="g-h" cx="60" cy="62" r="4"/></svg>';
+}
+var FXT=0;
+function fxAfter(changed){
+  var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  [].slice.call($app.querySelectorAll('.gauge')).forEach(function(g){
+    var p=+g.getAttribute('data-p')||0, v=g.querySelector('.g-v'), n=g.querySelector('.g-n');
+    var go=function(){ v.style.strokeDashoffset=100-p; n.style.transform='rotate('+(-90+p*1.8)+'deg)'; };
+    if(rm) go(); else setTimeout(go,80);
+  });
+  if(!rm&&changed&&S.view!=='session'){
+    var col=$app.querySelector('.col'); if(col){
+      [].slice.call(col.children).forEach(function(c,i){ c.style.setProperty('--i',Math.min(i,8)); });
+      col.classList.add('fx'); clearTimeout(FXT); FXT=setTimeout(function(){ col.classList.remove('fx'); },1000);
+    }
+  }
+}
+window.addEventListener('scroll',function(){ var t=document.querySelector('.top'); if(t) t.classList.toggle('glass',scrollY>8); },{passive:true});
 function popNums(){
   var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   [].slice.call($app.querySelectorAll('.tile')).forEach(function(t){
@@ -1250,7 +1298,7 @@ function stats(){
   h+='<div class="grid"><div class="tile s3"><span>연속 학습일</span><b>'+fmt(DB.streak||0)+'<small>일</small></b><i>누적 '+fmt(DB.days||0)+'일</i></div>';
   h+='<div class="tile s3"><span>본 문제</span><b>'+seen+'<small>/ '+D.length+'</small></b><i>한 번 이상 푼 문제</i></div>';
   h+='<div class="tile s3"><span>외운 문제</span><b>'+mast+'</b><i>7일 이상 간격으로 두 번 연속 정답</i></div>';
-  h+='<div class="tile s3"><span>전체 정답률</span><b>'+((R+W)?Math.round(R/(R+W)*100)+'<small>%</small>':'–')+'</b><i>'+fmt(R+W)+'번 풀어서 '+fmt(R)+'번 정답</i></div></div>';
+  h+='<div class="tile s3"><span>전체 정답률</span><b>'+((R+W)?Math.round(R/(R+W)*100)+'<small>%</small>':'–')+'</b>'+gauge((R+W)?R/(R+W)*100:0)+'<i>'+fmt(R+W)+'번 풀어서 '+fmt(R)+'번 정답</i></div></div>';
   h+='<div class="grid"><section class="panel s6"><div class="panel-h"><h2>영역별</h2><span class="chip-n">외운 문제 / 전체 · 정답률</span></div><div>';
   per.forEach(function(x){ h+='<div class="meter"><b>'+x.c+'</b><div class="bar" aria-hidden="true"><i style="--p:'+((x.tot?x.m/x.tot*100:0))/100+'"></i></div><code><em>'+x.m+'</em> / '+x.tot+' · '+(x.acc===null?'–':x.acc+'%')+'</code></div>'; });
   h+='</div></section>';
@@ -1277,7 +1325,7 @@ function render(){
   if(S.view==='home'){ var hk=$app.querySelector('.areas')?'first':'dash'; if(S.hk&&S.hk!==hk) fadeIn=true; S.hk=hk; }
   $app.classList.remove('fade'); if(fadeIn){ void $app.offsetWidth; $app.classList.add('fade'); }
   popNums();
-  var changed=S.pv!==S.view; S.pv=S.view;
+  var changed=S.pv!==S.view; fxAfter(changed||fadeIn); S.pv=S.view;
   if(changed){ var h1=document.querySelector('#app h1'); announce(h1?h1.textContent:''); }
   if(S.view==='dg') dgLoad();
   var a=document.getElementById('ans'); if(a) a.focus();
@@ -2469,7 +2517,7 @@ function prepPanel(){
   var ddT=dd===null?'–':(dd>0?'D-'+dd:dd===0?'D-DAY':'D+'+(-dd));
   var h='<section class="panel s12 prep"><div class="panel-h"><h2>시험 준비</h2><span class="chip-n">목표 · 약점 · 요약</span></div><div class="grid" style="gap:12px">';
   h+='<button class="tile s6" type="button" data-goal="1" aria-expanded="'+!!S.goalOpen+'"><span>시험까지</span><b>'+ddT+'</b><i>'+(DB.g.exam?DB.g.exam.replace(/-/g,'.')+' · 눌러서 바꾸기':'눌러서 시험 날짜 정하기')+'</i></button>';
-  h+='<div class="tile s6"><span>오늘 푼 문제</span><b>'+n+'<small>/ '+g+'</small></b><i>'+(n>=g?'오늘 목표를 채웠습니다':(g-n)+'문제 남았습니다')+'</i></div>';
+  h+='<div class="tile s6"><span>오늘 푼 문제</span><b>'+n+'<small>/ '+g+'</small></b>'+gauge(g?n/g*100:0)+'<i>'+(n>=g?'오늘 목표를 채웠습니다':(g-n)+'문제 남았습니다')+'</i></div>';
   h+='</div>';
   if(S.goalOpen){
     h+='<div class="goalbox"><label for="gexam">시험 날짜</label><input type="date" id="gexam" value="'+esc(DB.g.exam)+'">'+(DB.g.exam?'<button class="btn" type="button" data-gclear="1">날짜 지우기</button>':'')+'</div>';
@@ -2943,6 +2991,21 @@ function modelsHTML(){
 }
 
 render();
+
+(function(){
+  var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(rm) return;
+  var raf=0;
+  document.addEventListener('pointermove',function(e){
+    var t=e.target.closest&&e.target.closest('.gt'); 
+    [].slice.call(document.querySelectorAll('.gt.lit')).forEach(function(x){ if(x!==t){ x.classList.remove('lit','tilt'); x.style.removeProperty('--rx'); x.style.removeProperty('--ry'); } });
+    if(!t||raf) return; var cx=e.clientX, cy=e.clientY, mouse=e.pointerType==='mouse';
+    raf=requestAnimationFrame(function(){ raf=0; var r=t.getBoundingClientRect(); if(!r.width) return; var px=(cx-r.left)/r.width, py=(cy-r.top)/r.height;
+      t.style.setProperty('--mx',(px*100).toFixed(1)+'%'); t.style.setProperty('--my',(py*100).toFixed(1)+'%'); t.classList.add('lit');
+      if(mouse&&matchMedia('(hover:hover) and (pointer:fine)').matches){ t.style.setProperty('--rx',((.5-py)*10).toFixed(2)+'deg'); t.style.setProperty('--ry',((px-.5)*12).toFixed(2)+'deg'); t.classList.add('tilt'); }
+    });
+  },{passive:true});
+  document.addEventListener('pointerleave',function(){ [].slice.call(document.querySelectorAll('.gt.lit')).forEach(function(x){ x.classList.remove('lit','tilt'); }); },true);
+})();
 </script>
 
 </body></html>
