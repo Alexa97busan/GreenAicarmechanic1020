@@ -176,6 +176,8 @@ nav .nav-pill.on{opacity:1}
 nav .nav-pill.anim{transition:transform var(--duration-fast) var(--ease-smooth-out),width var(--duration-fast) var(--ease-smooth-out)}
 nav button[aria-current="true"]{background:transparent}
 @media (prefers-reduced-motion:reduce){.t-pop .d{animation:none}nav .nav-pill.anim{transition:none}.res.ok .ic{animation:none}.res.ok .ic path{animation:none;stroke-dashoffset:0}}
+.rb-frame{display:block;width:min(100%,340px);aspect-ratio:5/4;margin:0 auto;border:0;background:transparent}
+@media print{.rb-frame{display:none}}
 </style>
 <title>정비 기출 노트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1141,7 +1143,7 @@ function home(){
   h+='</div><div class="tip">오른쪽 끝은 정답률입니다. 아직 푼 기록이 없으면 –로 표시합니다.</div></section>';
   var bx=[0,0,0,0,0,0], due=[0,0,0,0,0,0]; Object.keys(DB.p).forEach(function(k){ var q=DB.p[k]; bx[q.b]++; if(q.d<=t0) due[q.b]++; });
   var names=['새로 틀림','1일 뒤','3일 뒤','7일 뒤','14일 뒤','30일 뒤'];
-  h+='<section class="panel"><div class="panel-h"><h2>복습 상자</h2><span class="chip-n">다음 복습까지</span></div><div class="boxstrip">'+bx.map(function(n,i){return '<div class="boxcell"><span>'+names[i]+'</span><b>'+n+'</b><i>'+(due[i]?'오늘 '+due[i]:'')+'</i></div>';}).join('')+'</div>';
+  h+='<section class="panel"><div class="panel-h"><h2>복습 상자</h2><span class="chip-n">다음 복습까지</span></div><iframe class="rb-frame" title="복습 상자 서랍장. 카드가 많은 칸일수록 서랍이 나와 있습니다" src="interactive/review-boxes.html?bare=1&c='+bx.join(',')+'" loading="lazy"></iframe><div class="boxstrip">'+bx.map(function(n,i){return '<div class="boxcell"><span>'+names[i]+'</span><b>'+n+'</b><i>'+(due[i]?'오늘 '+due[i]:'')+'</i></div>';}).join('')+'</div>';
   h+='<div class="tip">맞히면 한 칸 오른쪽으로, 틀리면 맨 왼쪽으로 돌아갑니다.</div></section></div>';
   h+=prepPanel();
   h+='<section class="panel s12"><div class="panel-h"><h2>이해 중심 학습</h2><span class="chip-n">입력 없이 눌러서 푸는 방식</span></div><div class="trio five">';
