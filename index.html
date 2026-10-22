@@ -619,6 +619,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .sim .sres div{padding:8px 12px;border-radius:var(--radius-row);background:var(--raised);border:1px solid var(--border)}
 .sim .sres b{font-variant-numeric:tabular-nums}
 .sim .sres .em{border-color:var(--accent)}
+.sim .sth{margin:12px 0 4px;font-size:13px;font-weight:700}.sim .sstep{margin:0;padding-left:1.4em;font-size:14px;line-height:1.7;font-variant-numeric:tabular-nums}.sim .sstep li::marker{color:var(--accent);font-weight:700}
 @media (max-width:480px){.sim label{grid-template-columns:84px minmax(0,1fr) 60px}}
 @media (max-width:860px){.hsw{min-width:800px}}
 @media (prefers-reduced-motion:reduce){
@@ -1995,12 +1996,12 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
   var f2=function(n,d){ return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString(); };
   var ss=function(t){ t=Math.min(1,Math.max(0,t)); return t*t*(3-2*t); };
   var SIMS={
-    'pascal-pressure':{t:'힘과 지름을 바꿔 보기',c:[['F','힘 F',10,300,5,150,' N'],['d','지름 d',1,10,0.5,6,' cm']],f:function(v){ var A=3.14*v.d*v.d/4; return [['면적 A = π×d²÷4',f2(A,2)+' cm²'],['압력 P = F÷A',f2(v.F/A,2)+' N/cm²',1]]; }},
-    'series-parallel':{t:'전압과 저항을 바꿔 보기',c:[['V','전원 V',6,24,1,12,' V'],['r1','R₁',1,20,1,4,' Ω'],['r2','R₂',1,20,1,8,' Ω'],['r3','R₃',1,20,1,12,' Ω'],['rp','A점 병렬 합성',1,10,0.2,4.8,' Ω'],['rb','B점 직렬',0.2,5,0.2,1.2,' Ω']],f:function(v){ var R=v.r1+v.r2+v.r3, Rt=v.rp+v.rb, I2=v.V/Rt; return [['① 합성 R',f2(R,1)+' Ω'],['① 전류 I',f2(v.V/R,3)+' A',1],['② 합성 R',f2(Rt,1)+' Ω'],['② 전류 I',f2(I2,2)+' A'],['② A점 전압강하',f2(I2*v.rp,2)+' V',1]]; }},
-    'kirchhoff-node':{t:'전류를 바꿔 보기',c:[['a','I₁ (들어옴)',0,10,1,1,' A'],['b','I₃ (들어옴)',0,10,1,3,' A'],['c','I₄ (들어옴)',0,10,1,4,' A'],['d','I₂ (나감)',0,10,1,2,' A']],f:function(v){ var i5=v.a+v.b+v.c-v.d; return [['들어오는 합',(v.a+v.b+v.c)+' A'],['I₅ = 합 − I₂',i5+' A',1]]; }},
-    'relay-coil':{t:'전압과 전류를 바꿔 보기',c:[['V','코일 전압',6,24,1,12,' V'],['I','코일 전류',0.05,0.6,0.005,0.125,' A']],f:function(v){ return [['코일 저항 R = V÷I',f2(v.V/v.I,1)+' Ω',1]]; }},
-    'lux-calc':{t:'광도와 거리를 바꿔 보기',c:[['I','광도 I',2000,30000,1000,18000,' cd'],['d','거리 d',1,10,0.5,3,' m']],f:function(v){ return [['거리²',f2(v.d*v.d,2)+' m²'],['조도 E = I÷거리²',f2(v.I/(v.d*v.d),0)+' lx',1]]; }},
-    'brake-ratio':{t:'제동력과 중량을 바꿔 보기',c:[['l','뒤좌 제동력',50,400,5,150,' kgf'],['r','뒤우 제동력',50,400,5,120,' kgf'],['wf','전축중',300,1500,10,700,' kg'],['wr','후축중',300,1500,10,450,' kg']],f:function(v){ var x=(v.l+v.r)/(v.wf+v.wr)*100; return [['비율(계산값)',f2(x,3)+' %'],['소수 둘째 자리 버림',(Math.floor(x*10)/10).toFixed(1)+' %',1],['소수점 이하 버림',Math.floor(x)+' %']]; }},
+    'pascal-pressure':{st:function(v){ var A=3.14*v.d*v.d/4; return ['면적부터 구합니다: A = 3.14 × '+v.d+'² ÷ 4 = '+f2(A,2)+' cm²','압력 = 힘 ÷ 면적: '+v.F+' ÷ '+f2(A,2)+' = '+f2(v.F/A,2)+' N/cm²','단위 주의: 지름은 반지름이 아니라 지름(d)을 씁니다. 지름이 2배면 면적은 4배, 압력은 1/4입니다.']; },t:'힘과 지름을 바꿔 보기',c:[['F','힘 F',10,300,5,150,' N'],['d','지름 d',1,10,0.5,6,' cm']],f:function(v){ var A=3.14*v.d*v.d/4; return [['면적 A = π×d²÷4',f2(A,2)+' cm²'],['압력 P = F÷A',f2(v.F/A,2)+' N/cm²',1]]; }},
+    'series-parallel':{st:function(v){ var R=v.r1+v.r2+v.r3, Rt=v.rp+v.rb, I2=v.V/Rt; return ['① 직렬: 합성 R = R₁+R₂+R₃ = '+v.r1+'+'+v.r2+'+'+v.r3+' = '+f2(R,1)+' Ω','① 전류 I = V ÷ R = '+v.V+' ÷ '+f2(R,1)+' = '+f2(v.V/R,3)+' A','② 병렬 부분은 먼저 합성해 하나의 저항으로 보고, 직렬 부분과 더합니다: '+v.rp+' + '+v.rb+' = '+f2(Rt,1)+' Ω','② 전체 전류 I = '+v.V+' ÷ '+f2(Rt,1)+' = '+f2(I2,2)+' A','② 전압강하 = I × R: '+f2(I2,2)+' × '+v.rp+' = '+f2(I2*v.rp,2)+' V']; },t:'전압과 저항을 바꿔 보기',c:[['V','전원 V',6,24,1,12,' V'],['r1','R₁',1,20,1,4,' Ω'],['r2','R₂',1,20,1,8,' Ω'],['r3','R₃',1,20,1,12,' Ω'],['rp','A점 병렬 합성',1,10,0.2,4.8,' Ω'],['rb','B점 직렬',0.2,5,0.2,1.2,' Ω']],f:function(v){ var R=v.r1+v.r2+v.r3, Rt=v.rp+v.rb, I2=v.V/Rt; return [['① 합성 R',f2(R,1)+' Ω'],['① 전류 I',f2(v.V/R,3)+' A',1],['② 합성 R',f2(Rt,1)+' Ω'],['② 전류 I',f2(I2,2)+' A'],['② A점 전압강하',f2(I2*v.rp,2)+' V',1]]; }},
+    'kirchhoff-node':{st:function(v){ var i=v.a+v.b+v.c; return ['키르히호프 제1법칙: 들어오는 전류의 합 = 나가는 전류의 합','들어오는 합 = '+v.a+' + '+v.b+' + '+v.c+' = '+i+' A','나가는 I₂ = '+v.d+' A 이므로 I₅ = '+i+' − '+v.d+' = '+(i-v.d)+' A','결과가 음수면 방향을 반대로 잡은 것입니다.']; },t:'전류를 바꿔 보기',c:[['a','I₁ (들어옴)',0,10,1,1,' A'],['b','I₃ (들어옴)',0,10,1,3,' A'],['c','I₄ (들어옴)',0,10,1,4,' A'],['d','I₂ (나감)',0,10,1,2,' A']],f:function(v){ var i5=v.a+v.b+v.c-v.d; return [['들어오는 합',(v.a+v.b+v.c)+' A'],['I₅ = 합 − I₂',i5+' A',1]]; }},
+    'relay-coil':{st:function(v){ return ['옴의 법칙: R = V ÷ I','R = '+v.V+' ÷ '+v.I+' = '+f2(v.V/v.I,1)+' Ω','릴레이 코일은 85-86 단자 사이를 잽니다.']; },t:'전압과 전류를 바꿔 보기',c:[['V','코일 전압',6,24,1,12,' V'],['I','코일 전류',0.05,0.6,0.005,0.125,' A']],f:function(v){ return [['코일 저항 R = V÷I',f2(v.V/v.I,1)+' Ω',1]]; }},
+    'lux-calc':{st:function(v){ return ['조도는 거리의 제곱에 반비례합니다: E = I ÷ r²','먼저 거리²: '+v.d+'² = '+f2(v.d*v.d,2),'E = '+v.I+' ÷ '+f2(v.d*v.d,2)+' = '+f2(v.I/(v.d*v.d),0)+' lx','거리가 2배면 조도는 1/4입니다.']; },t:'광도와 거리를 바꿔 보기',c:[['I','광도 I',2000,30000,1000,18000,' cd'],['d','거리 d',1,10,0.5,3,' m']],f:function(v){ return [['거리²',f2(v.d*v.d,2)+' m²'],['조도 E = I÷거리²',f2(v.I/(v.d*v.d),0)+' lx',1]]; }},
+    'brake-ratio':{st:function(v){ var x=(v.l+v.r)/(v.wf+v.wr)*100; return ['제동력 합 = '+v.l+' + '+v.r+' = '+(v.l+v.r)+' kgf','축중 합 = '+v.wf+' + '+v.wr+' = '+(v.wf+v.wr)+' kg','비율 = 제동력 합 ÷ 축중 합 × 100 = '+f2(x,3)+' %','문제의 자리수 지시(소수 둘째 자리 버림 등)대로 마지막에 한 번만 버림합니다.']; },t:'제동력과 중량을 바꿔 보기',c:[['l','뒤좌 제동력',50,400,5,150,' kgf'],['r','뒤우 제동력',50,400,5,120,' kgf'],['wf','전축중',300,1500,10,700,' kg'],['wr','후축중',300,1500,10,450,' kg']],f:function(v){ var x=(v.l+v.r)/(v.wf+v.wr)*100; return [['비율(계산값)',f2(x,3)+' %'],['소수 둘째 자리 버림',(Math.floor(x*10)/10).toFixed(1)+' %',1],['소수점 이하 버림',Math.floor(x)+' %']]; }},
     'catalyst-temp':{t:'온도를 바꿔 보기',c:[['T','촉매 온도',0,900,10,350,' ℃']],f:function(v){ var T=v.T, s=T<300?'정화가 거의 안 됨':T<400?'활성 개시(정화 시작)':T<=800?'정화율 높음 · 수명 연장 구간':'너무 높음 → 촉매 열화 위험'; return [['상태',s,1]]; }},
     'o2-sensor-types':{t:'혼합비(λ)를 바꿔 보기',c:[['L','공기과잉률 λ',0.9,1.1,0.005,0.95,'']],mark:true,f:function(v){ var s=ss((v.L-0.985)/0.03), z=0.9-0.8*s, ti=5*s, st=v.L<0.985?'농후(연료 많음)':v.L>1.015?'희박(공기 많음)':'이론공연비 부근 — 출력 급변'; return [['혼합 상태',st],['지르코니아 출력',f2(z,2)+' V',1],['티타니아 출력',f2(ti,2)+' V',1]]; }}
   };
@@ -2010,10 +2011,12 @@ document.addEventListener('keydown',function(e){ if(S.view==='calc'&&S.kq.cur.do
     var vals={}, h='<h4>'+S0.t+'</h4>';
     S0.c.forEach(function(c){ vals[c[0]]=c[5]; h+='<label><span>'+c[1]+'</span><input type="range" data-k="'+c[0]+'" min="'+c[2]+'" max="'+c[3]+'" step="'+c[4]+'" value="'+c[5]+'" aria-label="'+c[1]+'"><output>'+c[5]+c[6]+'</output></label>'; });
     h+='<div class="sres" aria-live="polite"></div>';
+    if(S0.st) h+='<h5 class="sth">풀이 순서</h5><ol class="sstep"></ol>';
     box.innerHTML=h; detail.appendChild(box);
     var res=box.querySelector('.sres'), mk=null;
     if(S0.mark){ mk=[document.createElement('span'),document.createElement('span')]; mk.forEach(function(m){ m.className='hsm'; wrap.appendChild(m); }); }
     function upd(){
+      if(S0.st) box.querySelector('.sstep').innerHTML=S0.st(vals).map(function(t){ return '<li>'+esc2(t)+'</li>'; }).join('');
       res.innerHTML=S0.f(vals).map(function(r){ return '<div'+(r[2]?' class="em"':'')+'>'+r[0]+' <b>'+r[1]+'</b></div>'; }).join('');
       if(mk){ var L=vals.L, s=ss((L-0.985)/0.03), hi=318, lo=400;
         var zx=96+(L-0.9)/0.2*224, tx=440+(L-0.9)/0.2*230;
