@@ -1723,14 +1723,15 @@ function topicsView(){
     h+='<button class="topic" data-topic="'+x.k+'"><b>'+esc(DXT[x.k])+'</b><span>문제 '+x.ids.length+'개 · 외운 '+m+'개</span><div class="bar" aria-hidden="true"><i style="--p:'+((m/x.ids.length*100))/100+'"></i></div></button>';
   });
   h+='</div></details></section>';
-  h+='<details class="more"><summary>움직이는 구조 모형 (7개)</summary><div class="iact">'
+  h+='<details class="more"><summary>움직이는 구조 모형 (8개)</summary><div class="iact">'
     +'<a href="interactive/3d.html?m=car" target="_blank" rel="noopener">차체 진동·자세 제어 3D (바운싱 · 피칭 · 롤링 · 휠 홉 · 다이브) ▸</a>'
     +'<a href="interactive/3d.html?m=axle" target="_blank" rel="noopener">판 스프링 차축의 와인드업 · 트랙션 바 3D ▸</a>'
     +'<a href="interactive/3d.html?m=susp" target="_blank" rel="noopener">맥퍼슨 · 위시본 현가장치 3D ▸</a>'
     +'<a href="interactive/four-stroke-3d.html" target="_blank" rel="noopener">4행정 엔진 · 3D로 돌려 보기 ▸</a>'
     +'<a href="interactive/oil-lubrication.html" target="_blank" rel="noopener">엔진 오일 윤활 경로 · 80℃ 오일 온도 센서 ▸</a>'
     +'<a href="interactive/disc-brake-gap.html" target="_blank" rel="noopener">디스크 브레이크 · 유격 ▸</a>'
-    +'<a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a></div></details>';
+    +'<a href="interactive/disc-brake-hydraulic.html" target="_blank" rel="noopener">디스크 브레이크 · 페달 유압 ▸</a>'
+    +'<a href="interactive/disc-brake-exploded.html" target="_blank" rel="noopener">디스크 브레이크 · 분해도 (좌우로 간격, 위아래로 부품 선택) ▸</a></div></details>';
   return h+creditsBox()+'</div>';
 }
 document.addEventListener('click',function(e){ var b=e.target.closest('[data-sarea]'); if(!b) return; S.sarea=b.getAttribute('data-sarea'); render(); $app.classList.remove('fade'); void $app.offsetWidth; $app.classList.add('fade'); });
